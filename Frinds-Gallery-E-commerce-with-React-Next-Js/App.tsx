@@ -1,0 +1,276 @@
+
+import React, { useState, useEffect } from 'react';
+import { Header } from './components/Header';
+import { HomePage } from './pages/HomePage';
+import { ShopPage } from './pages/ShopPage';
+import { ProductDetailPage } from './pages/ProductDetailPage';
+import { CheckoutPage } from './pages/CheckoutPage';
+import { OrderSuccessPage } from './pages/OrderSuccessPage';
+import { WishlistPage } from './pages/WishlistPage';
+import { Footer } from './components/Footer';
+import { FloatingCart } from './components/FloatingCart';
+import { FloatingSocials } from './components/FloatingSocials';
+import { AdminDashboardPage } from './pages/AdminDashboardPage';
+import { UtilityPage } from './pages/UtilityPage';
+import { HotDealsPage } from './pages/HotDealsPage';
+import { AboutUsPage } from './pages/AboutUsPage';
+import { ContactPage } from './pages/ContactPage';
+import { AccountPage } from './pages/AccountPage';
+import { AuthPage } from './pages/AuthPage';
+import { ReturnsPage } from './pages/ReturnsPage';
+import { TermsPage } from './pages/TermsPage';
+import { QuickViewModal } from './components/QuickViewModal';
+import { MobileBottomNav } from './components/MobileBottomNav';
+import type { Product, Category, CartItem, OrderDetails, Order, Customer, OrderItem } from './types';
+import * as api from './services/api';
+
+
+export type Page = 'home' | 'shop' | 'productDetail' | 'checkout' | 'orderSuccess' | 'wishlist' | 'admin' | 'utility' | 'hotDeals' | 'about' | 'contact' | 'account' | 'returns' | 'terms';
+
+const App: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [currentPage, setCurrentPage] = useState<Page>('home');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]); // Array of product IDs
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+  const [initialCategory, setInitialCategory] = useState<string>('all');
+  const [currentUser, setCurrentUser] = useState<Customer | null>(null);
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        setIsLoading(true);
+
+        // Fetch data independently so one failure doesn't break everything
+        const fetchProducts = api.getProducts().catch(e => { console.error('Products failed:', e); return []; });
+        const fetchCategories = api.getCategories().catch(e => { console.error('Categories failed:', e); return []; });
+        const fetchOrders = api.getOrders().catch(e => { console.error('Orders failed:', e); return []; });
+        const fetchCustomers = api.getCustomers().catch(e => { console.error('Customers failed:', e); return []; });
+
+        const [productsData, categoriesData, ordersData, customersData] = await Promise.all([
+          fetchProducts,
+          fetchCategories,
+          fetchOrders,
+          fetchCustomers,
+        ]);
+
+        setProducts(productsData || []);
+        setCategories(categoriesData || []);
+        setOrders(ordersData || []);
+        setCustomers(customersData || []);
+      } catch (error) {
+        console.error("Failed to load initial data", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadInitialData();
+  }, []);
+
+  const navigateTo = (page: Page) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
+  };
+
+  const navigateToShop = (categoryId: string = 'all') => {
+    setInitialCategory(categoryId);
+    navigateTo('shop');
+  };
+
+  const handleProductSelect = (product: Product) => {
+    setSelectedProduct(product);
+    navigateTo('productDetail');
+  };
+
+  const handleQuickView = (product: Product) => {
+    setQuickViewProduct(product);
+  };
+
+  const closeQuickView = () => {
+    setQuickViewProduct(null);
+  };
+
+  const addToCart = (productId: string, quantity: number) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(item => item.productId === productId);
+      if (existingItem) {
+        return prevCart.map(item =>
+          item.productId === productId
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+      } else {
+        return [...prevCart, { productId, quantity }];
+      }
+    });
+  };
+
+  const updateCartQuantity = (productId: string, quantity: number) => {
+    setCart(prevCart => {
+      if (quantity <= 0) {
+        return prevCart.filter(item => item.productId !== productId);
+      }
+      return prevCart.map(item =>
+        item.productId === productId ? { ...item, quantity } : item
+      );
+    });
+  };
+
+  const removeFromCart = (productId: string) => {
+    setCart(prevCart => prevCart.filter(item => item.productId !== productId));
+  };
+
+  const clearCart = () => {
+    setCart([]);
+  }
+
+  const handlePlaceOrder = async (orderData: { customerName: string; phone?: string; totalAmount: number; shippingAddress: string; items: OrderItem[] }) => {
+    const newOrder = await api.createOrder(orderData, currentUser);
+
+    setOrders(prev => [newOrder, ...prev]);
+
+    if (currentUser) {
+      const updatedUser: Customer = {
+        ...currentUser,
+        orderIds: [...currentUser.orderIds, newOrder.id],
+        totalOrders: currentUser.totalOrders + 1,
+        totalSpent: currentUser.totalSpent + newOrder.totalAmount
+      };
+      setCustomers(prev => prev.map(c => c.id === currentUser.id ? updatedUser : c));
+      setCurrentUser(updatedUser);
+    }
+
+    setOrderDetails({
+      orderId: newOrder.orderId,
+      customerName: orderData.customerName,
+      totalAmount: orderData.totalAmount,
+    });
+    clearCart();
+    navigateTo('orderSuccess');
+  };
+
+  const toggleWishlist = (productId: string) => {
+    setWishlist(prev =>
+      prev.includes(productId)
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
+  const buyNow = (productId: string, quantity: number) => {
+    // Clear cart and add only the buy now item for a streamlined checkout
+    setCart([{ productId, quantity }]);
+    navigateTo('checkout');
+  };
+
+  // Auth Handlers
+  const handleLogin = async (email: string, password: string): Promise<boolean> => {
+    const customer = await api.login(email, password);
+    if (customer) {
+      setCurrentUser(customer);
+      navigateTo('account');
+      return true;
+    }
+    return false;
+  };
+
+  const handleRegister = async (newCustomerData: Omit<Customer, 'id' | 'totalOrders' | 'totalSpent' | 'joinDate' | 'orderIds'>): Promise<boolean> => {
+    const existingCustomer = customers.some(c => c.email.toLowerCase() === newCustomerData.email.toLowerCase());
+    if (existingCustomer) {
+      return false; // Email already exists
+    }
+    const newCustomer = await api.register(newCustomerData);
+    setCustomers(prev => [...prev, newCustomer]);
+    setCurrentUser(newCustomer);
+    navigateTo('account');
+    return true;
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    navigateTo('home');
+  };
+
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'shop':
+        return <ShopPage products={products} categories={categories} initialCategory={initialCategory} onProductSelect={handleProductSelect} addToCart={addToCart} buyNow={buyNow} wishlist={wishlist} toggleWishlist={toggleWishlist} onQuickView={handleQuickView} navigateTo={navigateTo} navigateToShop={navigateToShop} />;
+      case 'productDetail':
+        return selectedProduct ? <ProductDetailPage product={selectedProduct} allProducts={products} categories={categories} onProductSelect={handleProductSelect} addToCart={addToCart} buyNow={buyNow} wishlist={wishlist} toggleWishlist={toggleWishlist} onQuickView={handleQuickView} navigateTo={navigateTo} navigateToShop={navigateToShop} /> : <HomePage products={products} categories={categories} navigateTo={navigateTo} navigateToShop={navigateToShop} onProductSelect={handleProductSelect} wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart} buyNow={buyNow} onQuickView={handleQuickView} />;
+      case 'checkout':
+        return <CheckoutPage cart={cart} products={products} updateCartQuantity={updateCartQuantity} removeFromCart={removeFromCart} onPlaceOrder={handlePlaceOrder} navigateTo={navigateTo} currentUser={currentUser} />;
+      case 'orderSuccess':
+        return <OrderSuccessPage orderDetails={orderDetails} navigateTo={navigateTo} />;
+      case 'wishlist':
+        return <WishlistPage products={products} wishlistProductIds={wishlist} onProductSelect={handleProductSelect} addToCart={addToCart} buyNow={buyNow} toggleWishlist={toggleWishlist} navigateTo={navigateTo} onQuickView={handleQuickView} />;
+      case 'admin':
+        return <AdminDashboardPage navigateTo={navigateTo} />;
+      case 'utility':
+        return <UtilityPage navigateTo={navigateTo} />;
+      case 'hotDeals':
+        return <HotDealsPage products={products} onProductSelect={handleProductSelect} addToCart={addToCart} buyNow={buyNow} wishlist={wishlist} toggleWishlist={toggleWishlist} onQuickView={handleQuickView} navigateTo={navigateTo} />;
+      case 'about':
+        return <AboutUsPage navigateTo={navigateTo} />;
+      case 'contact':
+        return <ContactPage navigateTo={navigateTo} />;
+      case 'account':
+        return currentUser
+          ? <AccountPage navigateTo={navigateTo} currentUser={currentUser} orders={orders.filter(o => currentUser.orderIds.includes(o.id))} onLogout={handleLogout} />
+          : <AuthPage navigateTo={navigateTo} onLogin={handleLogin} onRegister={handleRegister} />;
+      case 'returns':
+        return <ReturnsPage navigateTo={navigateTo} />;
+      case 'terms':
+        return <TermsPage navigateTo={navigateTo} />;
+      case 'home':
+      default:
+        return <HomePage products={products} categories={categories} navigateTo={navigateTo} navigateToShop={navigateToShop} onProductSelect={handleProductSelect} wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart} buyNow={buyNow} onQuickView={handleQuickView} />;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-brand-green-deep flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="relative w-20 h-20">
+            <div className="absolute inset-0 border-4 border-white/20 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-brand-yellow rounded-full animate-[spin_1.5s_linear_infinite] border-t-transparent shadow-[0_0_15px_rgba(251,191,36,0.3)]"></div>
+          </div>
+          <p className="mt-6 text-lg font-black text-brand-yellow tracking-[0.2em] uppercase animate-pulse">লোডিং...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-brand-cream text-brand-dark flex flex-col">
+      <Header navigateTo={navigateTo} navigateToShop={navigateToShop} cartItemCount={cart.reduce((sum, item) => sum + item.quantity, 0)} wishlistItemCount={wishlist.length} currentUser={currentUser} onLogout={handleLogout} />
+      <main className="flex-grow w-full pb-20 lg:pb-0">
+        {renderPage()}
+      </main>
+      <Footer navigateTo={navigateTo} navigateToShop={navigateToShop} />
+      <FloatingCart cart={cart} products={products} navigateTo={navigateTo} />
+      <FloatingSocials />
+      <MobileBottomNav currentPage={currentPage} navigateTo={navigateTo} />
+      {quickViewProduct && (
+        <QuickViewModal
+          product={quickViewProduct}
+          onClose={closeQuickView}
+          addToCart={addToCart}
+          buyNow={buyNow}
+          wishlist={wishlist}
+          toggleWishlist={toggleWishlist}
+        />
+      )}
+    </div>
+  );
+};
+
+export default App;

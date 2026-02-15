@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Friend's Gallery - বাংলাদেশের সেরা অনলাইন শপিং প্ল্যাটফর্ম। খিমার, হিজাব, থ্রি-পিস এবং ইসলামিক পোশাক কিনুন সেরা দামে।" />
+  <meta name="theme-color" content="#10b981" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="alternate icon" href="/favicon.ico" />
+
+  <!-- Preconnect to external domains -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://i.ibb.co" />
+  <link rel="preconnect" href="https://cdn-icons-png.flaticon.com" />
+  <link rel="dns-prefetch" href="https://sbhmnnxgvpffohooglvt.supabase.co" />
+
+  <title>Friend's Gallery | আপনার স্টাইলের সেরা ঠিকানা</title>
+
+  <!-- Optimized Font Loading -->
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet"
+    media="print" onload="this.media='all'" />
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+  </noscript>
+
+  <!-- Inline Critical CSS -->
+  <style>
+    /* Critical CSS */
+    body {
+      font-family: 'Hind Siliguri', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    #root {
+      min-height: 100vh;
+    }
+
+    /* Loading spinner */
+    .loader {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50px;
+      height: 50px;
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid #10b981;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+
+      100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+
+    /* Marquee animations */
+    @keyframes marquee {
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    .animate-marquee-slow {
+      animation: marquee 60s linear infinite;
+    }
+
+    .animate-marquee-fast {
+      animation: marquee 40s linear infinite;
+    }
+
+    .group:hover .animate-marquee-slow,
+    .group:hover .animate-marquee-fast {
+      animation-play-state: paused;
+    }
+
+    /* Form Styles */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"],
+    input[type="search"],
+    input[type="number"],
+    textarea,
+    select {
+      display: block;
+      width: 100%;
+      padding: 0.625rem 1rem;
+      font-size: 1rem;
+      color: #334155;
+      background-color: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+      outline: none;
+    }
+
+    input[type="text"]::placeholder,
+    input[type="email"]::placeholder,
+    input[type="password"]::placeholder,
+    input[type="tel"]::placeholder,
+    input[type="search"]::placeholder,
+    input[type="number"]::placeholder,
+    textarea::placeholder {
+      color: #94a3b8;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="tel"]:focus,
+    input[type="search"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #10b981;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+      height: 1rem;
+      width: 1rem;
+      accent-color: #10b981;
+      border: 1px solid #94a3b8;
+    }
+
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.7rem center;
+      background-repeat: no-repeat;
+      background-size: 1.5em 1.5em;
+      padding-right: 2.5rem;
+    }
+
+    /* Image optimization */
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Enhanced Button Styles for Better Visibility - Applied after Tailwind loads */
+    button {
+      position: relative;
+    }
+
+    /* Primary Green Buttons - Enhanced with !important to override Tailwind */
+    button.bg-brand-green,
+    .bg-brand-green {
+      background-color: #10b981 !important;
+      box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3) !important;
+    }
+
+    button.bg-brand-green:hover:not(:disabled),
+    .bg-brand-green:hover:not(:disabled) {
+      background-color: #059669 !important;
+      box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    button.bg-brand-green:active:not(:disabled),
+    .bg-brand-green:active:not(:disabled) {
+      transform: translateY(0) !important;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35) !important;
+    }
+
+    /* Green Dark Buttons */
+    button.bg-brand-green-dark,
+    .bg-brand-green-dark {
+      background-color: #059669 !important;
+      box-shadow: 0 3px 10px rgba(5, 150, 105, 0.3) !important;
+    }
+
+    button.bg-brand-green-dark:hover:not(:disabled),
+    .bg-brand-green-dark:hover:not(:disabled) {
+      background-color: #047857 !important;
+      box-shadow: 0 5px 15px rgba(5, 150, 105, 0.4) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    /* Dark Buttons - Enhanced */
+    button.bg-brand-dark,
+    .bg-brand-dark {
+      background-color: #1e293b !important;
+      box-shadow: 0 3px 10px rgba(30, 41, 59, 0.25) !important;
+    }
+
+    button.bg-brand-dark:hover:not(:disabled),
+    .bg-brand-dark:hover:not(:disabled) {
+      background-color: #0f172a !important;
+      box-shadow: 0 5px 15px rgba(30, 41, 59, 0.35) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    /* Slate/Gray Buttons - Enhanced */
+    button.bg-slate-100,
+    .bg-slate-100 {
+      background-color: #f1f5f9 !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+      border: 1px solid rgba(148, 163, 184, 0.3) !important;
+    }
+
+    button.bg-slate-100:hover:not(:disabled),
+    .bg-slate-100:hover:not(:disabled) {
+      background-color: #e2e8f0 !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* White Buttons - Enhanced */
+    button.bg-white,
+    button[class*="bg-white"] {
+      background-color: #ffffff !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+      border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    }
+
+    button.bg-white:hover:not(:disabled),
+    button[class*="bg-white"]:hover:not(:disabled) {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18) !important;
+    }
+
+    /* Accent Buttons - Enhanced */
+    button.bg-brand-accent,
+    .bg-brand-accent {
+      background-color: #f59e0b !important;
+      box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3) !important;
+    }
+
+    button.bg-brand-accent:hover:not(:disabled),
+    .bg-brand-accent:hover:not(:disabled) {
+      background-color: #d97706 !important;
+      box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    /* Yellow Buttons - Enhanced */
+    button.bg-brand-yellow,
+    .bg-brand-yellow {
+      background-color: #eab308 !important;
+      box-shadow: 0 3px 10px rgba(234, 179, 8, 0.3) !important;
+      border: 1px solid rgba(234, 179, 8, 0.4) !important;
+    }
+
+    button.bg-brand-yellow:hover:not(:disabled),
+    .bg-brand-yellow:hover:not(:disabled) {
+      background-color: #ca8a04 !important;
+      box-shadow: 0 5px 15px rgba(234, 179, 8, 0.4) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    /* Gray Buttons */
+    button.bg-gray-200,
+    .bg-gray-200 {
+      background-color: #e5e7eb !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    button.bg-gray-200:hover:not(:disabled),
+    .bg-gray-200:hover:not(:disabled) {
+      background-color: #d1d5db !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12) !important;
+    }
+
+    /* Icon Buttons - Enhanced */
+    button[aria-label]:not([class*="bg-"]) {
+      transition: all 0.2s ease !important;
+    }
+
+    button[aria-label]:not([class*="bg-"]):hover {
+      transform: scale(1.1) !important;
+    }
+
+    /* Disabled State - Enhanced */
+    button:disabled,
+    button[disabled] {
+      opacity: 0.5 !important;
+      cursor: not-allowed !important;
+      box-shadow: none !important;
+      transform: none !important;
+    }
+
+    /* Card Hover Effects - Premium Look */
+    .group:hover {
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    /* Focus Visible for Accessibility */
+    button:focus-visible {
+      outline: 2px solid #10b981 !important;
+      outline-offset: 2px !important;
+    }
+
+    /* Transition for all buttons */
+    button {
+      transition: all 0.2s ease-in-out !important;
+    }
+  </style>
+
+
+</head>
+
+<body class="bg-brand-cream">
+  <!-- Loading indicator -->
+  <div id="loading" class="loader"></div>
+
+  <div id="root"></div>
+
+  <script type="module" src="/index.tsx"></script>
+
+  <!-- Remove loader when app loads -->
+  <script>
+    window.addEventListener('load', function () {
+      const loader = document.getElementById('loading');
+      if (loader) {
+        loader.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+
+</html>
