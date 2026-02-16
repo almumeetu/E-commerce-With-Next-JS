@@ -1,3 +1,23 @@
+# Dependencies
+node_modules
+node_modules_old
+.pnpm-store
+.npm
+
+# Build outputs
+dist
+dist-ssr
+.next
+.vercel
+build
+
+# Environment variables (keep .env.example)
+.env
+.env.local
+.env.production
+.env.development
+*.local
+
 # Logs
 logs
 *.log
@@ -6,13 +26,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-.env
-.env.*
 
 # Editor directories and files
 .vscode/*
@@ -24,3 +37,28 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache
+
+# Old/backup files
+*.old
+*.backup
+*.bak
+*_old
+*_backup
+
+# Development utilities
+proxy.ts
+metadata.json
+pnpm-workspace.yaml
+
+# Database migration scripts (keep main setup file)
+add_category_image.sql
+fix_*.sql

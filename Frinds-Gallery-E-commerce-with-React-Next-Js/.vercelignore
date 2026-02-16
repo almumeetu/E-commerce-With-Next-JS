@@ -1,6 +1,49 @@
+# Dependencies
 node_modules
+node_modules_old
+.pnpm-store
+
+# Git
 .git
+.gitignore
+
+# Environment files (Vercel uses its own env vars)
+.env
 .env.local
 .env.*.local
+.env.production
+.env.development
+
+# Logs
 *.log
+logs
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Development files
+*.md
+!README.md
+GUIDE.md
+DOCUMENTATION.md
+BACKEND_SETUP_GUIDE.md
+
+# Old SQL migration files
+add_category_image.sql
+fix_*.sql
+
+# Development utilities
+proxy.ts
+metadata.json
+pnpm-workspace.yaml
+
+# Build artifacts (will be regenerated)
+dist
+.next
+.cache
+
+# Editor
+.vscode
+.idea
+

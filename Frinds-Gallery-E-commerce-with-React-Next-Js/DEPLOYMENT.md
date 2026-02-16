@@ -6,10 +6,16 @@ This project is configured as a Vite Single Page Application (SPA) and is ready 
 
 Ensure you have the following environment variables ready. You can find these in your `.env.local` file.
 
-**Required Environment Variables:**
+**Required Environment Variables for Vite (use VITE_ prefix):**
+- `VITE_SUPABASE_URL`: Your Supabase Project URL
+- `VITE_SUPABASE_ANON_KEY`: Your Supabase Anonymous Key
+
+**Alternative (also supported):**
 - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase Project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase Anonymous Key
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: Same as Anonymous Key (or your specific publishable key)
+
+**⚠️ IMPORTANT for Vercel Deployment:**
+When deploying to Vercel, you MUST use the `VITE_` prefix for your environment variables. The `NEXT_PUBLIC_` prefix works locally but may not work in production on Vercel for Vite apps.
 
 **Note:** Do NOT add `SUPABASE_SERVICE_ROLE_KEY` to Vercel environment variables unless you are using Vercel Serverless Functions. Exposing this key in a client-side application is a security risk.
 
@@ -35,7 +41,13 @@ Ensure you have the following environment variables ready. You can find these in
 
 4.  **Environment Variables**:
     - Expand the **Environment Variables** section.
-    - Add the variables listed in step 1.
+    - Add the following variables (use VITE_ prefix):
+      ```
+      VITE_SUPABASE_URL=https://tjzwxxxdauovsgvwijpv.supabase.co
+      VITE_SUPABASE_ANON_KEY=your_anon_key_here
+      ```
+    - **Important**: Make sure to use `VITE_` prefix, NOT `NEXT_PUBLIC_`
+    - Set these for **Production**, **Preview**, and **Development** environments
 
 5.  **Deploy**:
     - Click **Deploy**.
