@@ -1,5 +1,6 @@
 import { productServiceAdapter, categoryServiceAdapter } from './backendAdapter';
-import { supabase } from './supabase';
+import { supabase, isSupabaseConfigured } from './supabase';
+export { isSupabaseConfigured };
 import { databaseService } from './databaseService';
 import type { Product, Category, Order, Customer, SalesSummary, OrderItem } from '../types';
 import { OrderStatus } from '../types';
@@ -59,8 +60,8 @@ export const getProducts = async (): Promise<Product[]> => {
     }
     return await productServiceAdapter.getAllProducts();
   } catch (error) {
-    console.error('Error fetching products:', error);
-    return [];
+    console.error('Error fetching products (fallback to adapter):', error);
+    return await productServiceAdapter.getAllProducts();
   }
 };
 
@@ -77,8 +78,8 @@ export const getCategories = async (): Promise<Category[]> => {
     }
     return await categoryServiceAdapter.getAllCategories();
   } catch (error) {
-    console.error('Error fetching categories:', error);
-    return [];
+    console.error('Error fetching categories (fallback to adapter):', error);
+    return await categoryServiceAdapter.getAllCategories();
   }
 };
 

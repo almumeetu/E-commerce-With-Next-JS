@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
       assetsInlineLimit: 0,
       terserOptions: {
         compress: {
-          drop_console: true, // Remove console.logs in production
+          drop_console: false, // Keep console logs for debugging Vercel deployment
           drop_debugger: true,
         },
       },

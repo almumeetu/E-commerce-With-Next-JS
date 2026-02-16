@@ -66,6 +66,10 @@ const App: React.FC = () => {
   useEffect(() => {
     const loadInitialData = async () => {
       try {
+        if (!api.isSupabaseConfigured()) {
+          console.error("🔴 Supabase is NOT configured. Environment variables are missing.");
+          alert("DATABASE CONNECTION ERROR:\n\nPlease set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your Vercel project settings or .env file.\n\nThe app is running in offline mode.");
+        }
         setIsLoading(true);
 
         // Fetch data independently so one failure doesn't break everything
