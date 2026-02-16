@@ -1,8 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import type { Page } from '../App';
-import { categories } from '../constants';
-import type { Customer } from '../types';
+import type { Customer, Category } from '../types';
 import { SearchIcon, HeartIcon, ShoppingCartIcon, UserCircleIcon, Bars3Icon, XMarkIcon, CubeIcon, UserIcon, ArrowLeftOnRectangleIcon, Cog6ToothIcon } from './icons';
 
 interface HeaderProps {
@@ -12,6 +11,7 @@ interface HeaderProps {
     wishlistItemCount: number;
     currentUser: Customer | null;
     onLogout: () => void;
+    categories: Category[];
 }
 
 const Logo = () => (
@@ -35,7 +35,7 @@ const Logo = () => (
 // Designated admin user for demo purposes
 const ADMIN_EMAIL = 'amina@example.com';
 
-export const Header: React.FC<HeaderProps> = ({ navigateTo, navigateToShop, cartItemCount, wishlistItemCount, currentUser, onLogout }) => {
+export const Header: React.FC<HeaderProps> = ({ navigateTo, navigateToShop, cartItemCount, wishlistItemCount, currentUser, onLogout, categories }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
 

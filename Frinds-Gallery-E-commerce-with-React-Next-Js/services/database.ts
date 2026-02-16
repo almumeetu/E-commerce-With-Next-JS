@@ -1,6 +1,6 @@
 import { PRODUCTS, CATEGORIES } from '../constants';
 import { Product, Category } from '../types';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../services/supabase';
 
 export interface OrderData {
     customer_name: string;

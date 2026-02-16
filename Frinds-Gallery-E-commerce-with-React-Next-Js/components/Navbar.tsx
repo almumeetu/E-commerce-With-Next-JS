@@ -3,7 +3,7 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, Moon, Heart, Search, ArrowLeft } from 'lucide-react';
+import { BiShoppingBag, BiMoon, BiHeart, BiSearch, BiArrowBack } from 'react-icons/bi';
 import { PRODUCTS } from '../constants';
 import { Product } from '../types';
 import { useCart } from '@/src/context/CartContext';

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Product } from '@/types';
-import { Eye, Heart, ShoppingBag, ShoppingCart, Package, Plus, Loader2 } from 'lucide-react';
+import { BiShow, BiHeart, BiShoppingBag, BiCart, BiPackage, BiPlus, BiLoaderAlt } from 'react-icons/bi';
 import { useRouter } from 'next/navigation';
 
 interface ProductCardProps {

@@ -116,11 +116,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, products, upda
             <div className="space-y-5">
               <div>
                 <label htmlFor="name" className="block text-base font-medium text-slate-700 mb-1">আপনার নাম *</label>
-                <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} required className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-dark focus:border-transparent" />
               </div>
               <div>
                 <label htmlFor="phone" className="block text-base font-medium text-slate-700 mb-1">আপনার মোবাইল নাম্বার *</label>
-                <input type="tel" id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                <input type="tel" id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} required className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-dark focus:border-transparent" />
               </div>
               <div>
                 <label className="block text-base font-medium text-slate-700 mb-2">ডেলিভারি এলাকা *</label>
@@ -131,11 +131,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, products, upda
               </div>
               <div>
                 <label htmlFor="address" className="block text-base font-medium text-slate-700 mb-1">সম্পূর্ণ ঠিকানা *</label>
-                <textarea id="address" value={address} onChange={(e) => setAddress(e.target.value)} required rows={3} placeholder="বাসা/হোল্ডিং, রোড, থানা"></textarea>
+                <textarea id="address" value={address} onChange={(e) => setAddress(e.target.value)} required rows={3} placeholder="বাসা/হোল্ডিং, রোড, থানা" className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-dark focus:border-transparent"></textarea>
               </div>
               <div>
                 <label htmlFor="notes" className="block text-base font-medium text-slate-700 mb-1">বিশেষ নোট (ঐচ্ছিক)</label>
-                <textarea id="notes" rows={2} placeholder="অর্ডার সম্পর্কিত কোনো বিশেষ নির্দেশনা থাকলে লিখুন..."></textarea>
+                <textarea id="notes" rows={2} placeholder="অর্ডার সম্পর্কিত কোনো বিশেষ নির্দেশনা থাকলে লিখুন..." className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-dark focus:border-transparent"></textarea>
               </div>
             </div>
           </div>
@@ -171,7 +171,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, products, upda
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value)}
                   placeholder="কোড লিখুন"
-                  className="flex-grow uppercase"
+                  className="flex-grow uppercase p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-dark focus:border-transparent"
                 />
                 <button
                   type="button"

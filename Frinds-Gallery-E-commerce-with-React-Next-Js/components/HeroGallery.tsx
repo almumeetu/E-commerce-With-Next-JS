@@ -16,16 +16,16 @@ const slides = [
         id: 1,
         image: '/images/banner/banner.webp',
         subtitle: 'নতুন কালেকশন ২০২৪',
-        title: <>আপনার <span className="text-brand-yellow italic">ফ্যাশন</span>,<br />আপনার পরিচয়</>,
+        title: <>আপনার <span className="text-brand-yellow italic">ফ্যাশন</span>,<br className="hidden sm:block" />আপনার পরিচয়</>,
         description: 'শৈলী আর আভিজাত্যের এক অপূর্ব সমন্বয়। আধুনিক ডিজাইনের শ্রেষ্ঠ পোশাক সম্ভার এখন আপনার নাগালে।',
         primaryBtn: 'শপ ভিজিট করুন',
-        secondaryBtn: 'মেগা অফার দেখুন'
+        secondaryBtn: 'মেগা অফার'
     },
     {
         id: 2,
         image: '/images/banner/banner-2.webp',
         subtitle: 'এক্সক্লুসিভ কালেকশন',
-        title: <>সেরা <span className="text-brand-yellow italic">ডিজাইন</span>,<br />সেরা মান</>,
+        title: <>সেরা <span className="text-brand-yellow italic">ডিজাইন</span>,<br className="hidden sm:block" />সেরা মান</>,
         description: 'প্রিমিয়াম কোয়ালিটির নিশ্চয়তা। আপনার পছন্দের পোশাকটি বেছে নিন আমাদের বিশাল কালেকশন থেকে।',
         primaryBtn: 'অর্ডার করুন',
         secondaryBtn: 'নতুন কালেকশন'
@@ -34,10 +34,10 @@ const slides = [
         id: 3,
         image: '/images/banner/banner-3.webp',
         subtitle: 'ঈদ স্পেশাল',
-        title: <>উৎসবের <span className="text-brand-yellow italic">রঙ</span>,<br />আপনার সাথে</>,
+        title: <>উৎসবের <span className="text-brand-yellow italic">রঙ</span>,<br className="hidden sm:block" />আপনার সাথে</>,
         description: 'ঈদের কেনাকাটায় বিশেষ ছাড়। আপনার প্রিয়জনের জন্য সেরা উপহারটি কিনুন এখনই।',
         primaryBtn: 'শপ ভিজিট করুন',
-        secondaryBtn: 'ডিসকাউন্ট দেখুন'
+        secondaryBtn: 'ডিসকাউন্ট'
     }
 ];
 

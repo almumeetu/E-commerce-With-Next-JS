@@ -1,12 +1,60 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Search, Eye, CheckCircle, Truck, XCircle, Clock, Calendar, Phone, MapPin, DollarSign, Package, X, ShoppingBag, Filter, Download, TrendingUp, Users, AlertCircle, ChevronDown } from 'lucide-react';
-import { updateOrderStatus } from '@/src/lib/actions/orders';
-import { toast } from '@/lib/toast';
+import { useState, useMemo, useEffect } from 'react';
+import {
+    Search,
+    Loader2,
+    Download,
+    ShoppingBag,
+    TrendingUp,
+    Clock,
+    DollarSign,
+    Filter,
+    ChevronDown,
+    Phone,
+    Calendar,
+    Eye,
+    X,
+    Truck,
+    MapPin,
+    Package,
+    CheckCircle,
+    XCircle
+} from 'lucide-react';
+import { databaseService } from '../services/databaseService';
 
-export default function AdminOrders({ orders: initialOrders }: { orders: any[] }) {
-    const [orders, setOrders] = useState(initialOrders);
+// Helper for notifications
+const notify = (message: string, type: 'success' | 'error' = 'success') => {
+    alert(`${type === 'success' ? '✅' : '❌'} ${message}`);
+};
+
+export default function AdminOrders() {
+    const [orders, setOrders] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadOrders();
+    }, []);
+
+    const loadOrders = async () => {
+        setLoading(true);
+        try {
+            console.log('AdminOrders: Fetching orders...');
+            const data = await databaseService.getOrdersWithItems();
+            console.log('AdminOrders: Fetched', data?.length, 'orders');
+            if (data) {
+                setOrders(data);
+            } else {
+                setOrders([]);
+            }
+        } catch (error) {
+            console.error('Failed to load orders in AdminOrders:', error);
+            notify('অর্ডার লোড করতে সমস্যা হয়েছে (চেক কনসোল)', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
     const [statusFilter, setStatusFilter] = useState('all');
@@ -40,8 +88,8 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
 
     const filteredOrders = useMemo(() => {
         let filtered = orders.filter(o =>
-            o.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            o.phone.includes(searchTerm) ||
+            (o.customer_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (o.phone || '').includes(searchTerm) ||
             o.id.toString().includes(searchTerm)
         );
 
@@ -73,7 +121,7 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
 
     const getStatusStyle = (status: string) => {
         switch (status) {
-            case 'delivered': return 'bg-indigo-100 text-indigo-700 border-indigo-200';
+            case 'delivered': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
             case 'processing': return 'bg-blue-100 text-blue-700 border-blue-200';
             case 'pending': return 'bg-amber-100 text-amber-700 border-amber-200';
             case 'cancelled': return 'bg-rose-100 text-rose-700 border-rose-200';
@@ -82,12 +130,16 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
     };
 
     async function handleStatusUpdate(id: string, status: string) {
-        const res = await updateOrderStatus(id, status);
+        const res = await databaseService.updateOrderStatus(id, status);
         if (res.success) {
-            toast.success('অর্ডার স্ট্যাটাস আপডেট করা হয়েছে');
-            window.location.reload();
+            notify('অর্ডার স্ট্যাটাস আপডেট করা হয়েছে');
+            // Optimistic update or reload
+            setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+            if (selectedOrder && selectedOrder.id === id) {
+                setSelectedOrder(prev => ({ ...prev, status }));
+            }
         } else {
-            toast.error('সমস্যা হয়েছে: ' + res.error);
+            notify('সমস্যা হয়েছে: ' + res.error, 'error');
         }
     }
 
@@ -113,6 +165,14 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
         a.click();
     };
 
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <Loader2 className="animate-spin text-emerald-600" size={40} />
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-8 pb-10">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
@@ -125,11 +185,11 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
                         onClick={handleExportOrders}
                         className="bg-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 border border-stone-100 shadow-sm hover:bg-stone-50 transition"
                     >
-                        <Download className="text-indigo-600" size={20} />
+                        <Download className="text-emerald-600" size={20} />
                         <span className="text-stone-900">এক্সপোর্ট</span>
                     </button>
                     <div className="bg-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 border border-stone-100 shadow-sm">
-                        <ShoppingBag className="text-indigo-600" size={20} />
+                        <ShoppingBag className="text-emerald-600" size={20} />
                         <span className="text-stone-900">{orders.length} টি অর্ডার</span>
                     </div>
                 </div>
@@ -137,15 +197,15 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
 
             {/* Analytics Dashboard */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-[2rem] border border-indigo-200">
+                <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 rounded-[2rem] border border-emerald-200">
                     <div className="flex items-center justify-between mb-4">
                         <div className="p-3 bg-white rounded-xl shadow-sm">
-                            <TrendingUp className="h-6 w-6 text-indigo-600" />
+                            <TrendingUp className="h-6 w-6 text-emerald-600" />
                         </div>
-                        <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">+12%</span>
+                        <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">+12%</span>
                     </div>
-                    <p className="text-2xl font-black text-indigo-900">৳{analytics.totalRevenue.toLocaleString()}</p>
-                    <p className="text-xs text-indigo-600 font-bold mt-1">মোট রেভিনিউ</p>
+                    <p className="text-2xl font-black text-emerald-900">৳{analytics.totalRevenue.toLocaleString()}</p>
+                    <p className="text-xs text-emerald-600 font-bold mt-1">মোট রেভিনিউ</p>
                 </div>
 
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-[2rem] border border-blue-200">
@@ -188,13 +248,13 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
                     <input
                         type="text"
                         placeholder="নাম, ফোন বা অর্ডার আইডি দিয়ে খুঁজুন..."
-                        className="w-full pl-14 pr-6 py-5 rounded-[2rem] border-2 border-stone-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all text-stone-700 font-medium shadow-sm"
+                        className="w-full pl-14 pr-6 py-5 rounded-[2rem] border-2 border-stone-100 bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all text-stone-700 font-medium shadow-sm"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-indigo-500 transition-colors" size={24} />
+                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-emerald-500 transition-colors" size={24} />
                 </div>
-                
+
                 <div className="flex gap-2">
                     <button
                         onClick={() => setShowFilters(!showFilters)}
@@ -216,7 +276,7 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-indigo-500 outline-none font-medium text-stone-700"
+                                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-emerald-500 outline-none font-medium text-stone-700"
                             >
                                 <option value="all">সব স্ট্যাটাস</option>
                                 <option value="pending">পেন্ডিং</option>
@@ -230,7 +290,7 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
                             <select
                                 value={dateFilter}
                                 onChange={(e) => setDateFilter(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-indigo-500 outline-none font-medium text-stone-700"
+                                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-emerald-500 outline-none font-medium text-stone-700"
                             >
                                 <option value="all">সব সময়</option>
                                 <option value="today">আজ</option>
@@ -257,9 +317,9 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
                         </thead>
                         <tbody className="divide-y divide-stone-50">
                             {filteredOrders.map((order) => (
-                                <tr key={order.id} className="hover:bg-indigo-50/30 transition-colors group">
+                                <tr key={order.id} className="hover:bg-emerald-50/30 transition-colors group">
                                     <td className="px-8 py-6">
-                                        <span className="font-mono text-xs font-bold text-stone-400 group-hover:text-indigo-600">#{order.id.toString().slice(-8).toUpperCase()}</span>
+                                        <span className="font-mono text-xs font-bold text-stone-400 group-hover:text-emerald-600">#{order.id.toString().slice(-8).toUpperCase()}</span>
                                     </td>
                                     <td className="px-8 py-6">
                                         <p className="text-base font-bold text-stone-900">{order.customer_name}</p>
@@ -274,7 +334,7 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
                                             {new Date(order.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                                         </div>
                                     </td>
-                                    <td className="px-8 py-6 text-base font-black text-indigo-900">৳ {order.total_price}</td>
+                                    <td className="px-8 py-6 text-base font-black text-emerald-900">৳ {order.total_price}</td>
                                     <td className="px-8 py-6">
                                         <span className={`text-[10px] font-black px-3 py-1 rounded-full border uppercase tracking-widest ${getStatusStyle(order.status)}`}>
                                             {order.status}
@@ -283,7 +343,7 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
                                     <td className="px-8 py-6 text-right">
                                         <button
                                             onClick={() => setSelectedOrder(order)}
-                                            className="p-3 bg-white border border-stone-100 hover:bg-indigo-600 hover:text-white text-indigo-600 rounded-xl transition shadow-sm active:scale-95 group/btn"
+                                            className="p-3 bg-white border border-stone-100 hover:bg-emerald-600 hover:text-white text-emerald-600 rounded-xl transition shadow-sm active:scale-95 group/btn"
                                         >
                                             <Eye size={18} className="group-hover/btn:scale-110 transition-transform" />
                                         </button>
@@ -299,15 +359,15 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
             {selectedOrder && (
                 <div className="fixed inset-0 bg-stone-900/40 backdrop-blur-md z-[100] flex items-center justify-center p-4 overflow-y-auto">
                     <div className="bg-white rounded-[3rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-slide-up my-8">
-                        <div className="bg-gradient-to-r from-indigo-900 to-indigo-800 p-10 text-white flex justify-between items-center relative overflow-hidden">
+                        <div className="bg-gradient-to-r from-emerald-900 to-emerald-800 p-10 text-white flex justify-between items-center relative overflow-hidden">
                             <div className="relative z-10">
                                 <h3 className="text-3xl font-black tracking-tight">অর্ডার ডিটেইলস</h3>
-                                <p className="text-indigo-200/80 font-medium mt-1">ID: #{selectedOrder.id.toString().toUpperCase()}</p>
+                                <p className="text-emerald-200/80 font-medium mt-1">ID: #{selectedOrder.id.toString().toUpperCase()}</p>
                             </div>
                             <button onClick={() => setSelectedOrder(null)} className="bg-white/10 p-3 rounded-full hover:bg-white/20 transition relative z-10 active:scale-95">
                                 <X size={24} />
                             </button>
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
                         </div>
 
                         <div className="p-10 space-y-10">
@@ -318,7 +378,7 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
                                     </div>
                                     <div>
                                         <p className="text-xl font-black text-stone-900">{selectedOrder.customer_name}</p>
-                                        <p className="text-sm font-bold text-indigo-600 mt-1">{selectedOrder.phone}</p>
+                                        <p className="text-sm font-bold text-emerald-600 mt-1">{selectedOrder.phone}</p>
                                         <div className="mt-4 flex items-start gap-2 p-4 bg-stone-50 rounded-2xl border border-stone-100">
                                             <MapPin size={16} className="text-stone-300 mt-1 shrink-0" />
                                             <p className="text-sm text-stone-600 font-medium leading-relaxed">{selectedOrder.address}</p>
@@ -329,10 +389,10 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
                                     <div className="flex items-center gap-2 text-xs font-black text-stone-400 uppercase tracking-widest">
                                         <DollarSign size={14} /> পেমেন্ট ও সামারি
                                     </div>
-                                    <div className="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100">
-                                        <p className="text-xs font-black text-indigo-600 uppercase tracking-widest mb-1">{selectedOrder.payment_method || 'CASH ON DELIVERY'}</p>
-                                        <p className="text-3xl font-black text-indigo-900">৳ {selectedOrder.total_price}</p>
-                                        <p className="text-[10px] text-indigo-400 font-bold mt-2 italic">পেমেন্ট স্ট্যাটাস: পেন্ডিং</p>
+                                    <div className="bg-emerald-50 p-6 rounded-[2rem] border border-emerald-100">
+                                        <p className="text-xs font-black text-emerald-600 uppercase tracking-widest mb-1">{selectedOrder.payment_method || 'CASH ON DELIVERY'}</p>
+                                        <p className="text-3xl font-black text-emerald-900">৳ {selectedOrder.total_price}</p>
+                                        <p className="text-[10px] text-emerald-400 font-bold mt-2 italic">পেমেন্ট স্ট্যাটাস: পেন্ডিং</p>
                                     </div>
                                 </div>
                             </div>
@@ -352,7 +412,7 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
                                                         <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest mt-0.5">পরিমাণ: {item.quantity}</p>
                                                     </div>
                                                 </div>
-                                                <span className="font-black text-indigo-800">৳ {item.price * item.quantity}</span>
+                                                <span className="font-black text-emerald-800">৳ {item.price * item.quantity}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -367,7 +427,7 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
                                     {[
                                         { id: 'pending', label: 'পেন্ডিং', icon: Clock, color: 'hover:bg-amber-500 hover:text-white text-amber-600 border-amber-100' },
                                         { id: 'processing', label: 'প্রসেসিং', icon: Truck, color: 'hover:bg-blue-500 hover:text-white text-blue-600 border-blue-100' },
-                                        { id: 'delivered', label: 'ডেলিভারড', icon: CheckCircle, color: 'hover:bg-indigo-500 hover:text-white text-indigo-600 border-indigo-100' },
+                                        { id: 'delivered', label: 'ডেলিভারড', icon: CheckCircle, color: 'hover:bg-emerald-500 hover:text-white text-emerald-600 border-emerald-100' },
                                         { id: 'cancelled', label: 'বাতিল', icon: XCircle, color: 'hover:bg-rose-500 hover:text-white text-rose-600 border-rose-100' },
                                     ].map((status) => (
                                         <button
@@ -388,4 +448,3 @@ export default function AdminOrders({ orders: initialOrders }: { orders: any[] }
         </div>
     );
 }
-

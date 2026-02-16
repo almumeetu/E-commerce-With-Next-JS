@@ -1,28 +1,29 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Header } from './components/Header';
 import { HomePage } from './pages/HomePage';
 import { ShopPage } from './pages/ShopPage';
-import { ProductDetailPage } from './pages/ProductDetailPage';
-import { CheckoutPage } from './pages/CheckoutPage';
-import { OrderSuccessPage } from './pages/OrderSuccessPage';
-import { WishlistPage } from './pages/WishlistPage';
 import { Footer } from './components/Footer';
 import { FloatingCart } from './components/FloatingCart';
 import { FloatingSocials } from './components/FloatingSocials';
-import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { UtilityPage } from './pages/UtilityPage';
-import { HotDealsPage } from './pages/HotDealsPage';
-import { AboutUsPage } from './pages/AboutUsPage';
-import { ContactPage } from './pages/ContactPage';
-import { AccountPage } from './pages/AccountPage';
-import { AuthPage } from './pages/AuthPage';
-import { ReturnsPage } from './pages/ReturnsPage';
-import { TermsPage } from './pages/TermsPage';
 import { QuickViewModal } from './components/QuickViewModal';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import type { Product, Category, CartItem, OrderDetails, Order, Customer, OrderItem } from './types';
 import * as api from './services/api';
+
+// Lazy-load non-critical pages for faster initial load
+const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
+const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage').then(m => ({ default: m.CheckoutPage })));
+const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage').then(m => ({ default: m.OrderSuccessPage })));
+const WishlistPage = lazy(() => import('./pages/WishlistPage').then(m => ({ default: m.WishlistPage })));
+const HotDealsPage = lazy(() => import('./pages/HotDealsPage').then(m => ({ default: m.HotDealsPage })));
+const AboutUsPage = lazy(() => import('./pages/AboutUsPage').then(m => ({ default: m.AboutUsPage })));
+const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
+const AccountPage = lazy(() => import('./pages/AccountPage').then(m => ({ default: m.AccountPage })));
+const AuthPage = lazy(() => import('./pages/AuthPage').then(m => ({ default: m.AuthPage })));
+const ReturnsPage = lazy(() => import('./pages/ReturnsPage').then(m => ({ default: m.ReturnsPage })));
+const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
 
 
 export type Page = 'home' | 'shop' | 'productDetail' | 'checkout' | 'orderSuccess' | 'wishlist' | 'admin' | 'utility' | 'hotDeals' | 'about' | 'contact' | 'account' | 'returns' | 'terms';
@@ -34,7 +35,11 @@ const App: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [currentPage, setCurrentPage] = useState<Page>('home');
+  // Check URL pathname for admin
+  const path = window.location.pathname;
+  const initialPage = path === '/admin' ? 'admin' : 'home';
+
+  const [currentPage, setCurrentPage] = useState<Page>(initialPage);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -42,6 +47,21 @@ const App: React.FC = () => {
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [initialCategory, setInitialCategory] = useState<string>('all');
   const [currentUser, setCurrentUser] = useState<Customer | null>(null);
+
+  useEffect(() => {
+    // Handle browser back/forward buttons
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      if (path === '/admin') {
+        setCurrentPage('admin');
+      } else {
+        setCurrentPage('home');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -77,6 +97,10 @@ const App: React.FC = () => {
   const navigateTo = (page: Page) => {
     setCurrentPage(page);
     window.scrollTo(0, 0);
+
+    // Update URL without reloading
+    const newPath = page === 'home' ? '/' : `/${page}`;
+    window.history.pushState(null, '', newPath);
   };
 
   const navigateToShop = (categoryId: string = 'all') => {
@@ -249,11 +273,22 @@ const App: React.FC = () => {
     );
   }
 
+  // If on admin page, don't show header/footer
+  if (currentPage === 'admin') {
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-brand-green-deep flex items-center justify-center"><div className="loader" /></div>}>
+        {renderPage()}
+      </Suspense>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-brand-cream text-brand-dark flex flex-col">
-      <Header navigateTo={navigateTo} navigateToShop={navigateToShop} cartItemCount={cart.reduce((sum, item) => sum + item.quantity, 0)} wishlistItemCount={wishlist.length} currentUser={currentUser} onLogout={handleLogout} />
+      <Header navigateTo={navigateTo} navigateToShop={navigateToShop} cartItemCount={cart.reduce((sum, item) => sum + item.quantity, 0)} wishlistItemCount={wishlist.length} currentUser={currentUser} onLogout={handleLogout} categories={categories} />
       <main className="flex-grow w-full pb-20 lg:pb-0">
-        {renderPage()}
+        <Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center"><div className="loader" /></div>}>
+          {renderPage()}
+        </Suspense>
       </main>
       <Footer navigateTo={navigateTo} navigateToShop={navigateToShop} />
       <FloatingCart cart={cart} products={products} navigateTo={navigateTo} />

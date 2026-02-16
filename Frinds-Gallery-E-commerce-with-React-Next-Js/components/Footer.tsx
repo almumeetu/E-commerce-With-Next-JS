@@ -1,6 +1,7 @@
 import React from 'react';
 import { ServiceInfo } from './ServiceInfo';
 import type { Page } from '../App';
+import { BiLogoFacebook, BiLogoInstagram, BiLogoTwitter } from 'react-icons/bi';
 
 interface FooterProps {
     navigateTo: (page: Page) => void;
@@ -39,7 +40,7 @@ export const Footer: React.FC<FooterProps> = ({ navigateTo, navigateToShop }) =>
             <div className="relative w-full mx-auto max-w-8xl px-4 sm:px-6 lg:px-8 pb-16">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16">
                     {/* Brand Section */}
-                    <div className="md:col-span-5 space-y-8">
+                    <div className="md:col-span-4 space-y-8">
                         <div className="group cursor-pointer">
                             <Logo />
                         </div>
@@ -47,9 +48,12 @@ export const Footer: React.FC<FooterProps> = ({ navigateTo, navigateToShop }) =>
                             বাংলাদেশের মহিলাদের ফ্যাশন জগতে আভিজাত্য ও আধুনিকতার এক অনন্য নাম <span className="text-brand-yellow font-black">ফ্রেন্ডস গ্যালারি</span>। আমরা বিশ্বাস করি আপনার পোশাকই আপনার পরিচয়, তাই আমরা দিচ্ছি সেরা মানের প্রিমিয়াম কালেকশন।
                         </p>
                         <div className="flex gap-4 pt-2">
-                            <SocialIcon href="#"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M22.46 6c-.77.35-1.6.58-2.46.67.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98-3.56-.18-6.73-1.89-8.84-4.48-.37.63-.58 1.37-.58 2.15 0 1.49.76 2.81 1.91 3.58-.71 0-1.37-.22-1.95-.55v.05c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.52 8.52 0 0 1-5.33 1.84c-.35 0-.69-.02-1.03-.06C3.4 19.4 5.66 20 8.12 20c7.34 0 11.35-6.08 11.35-11.35 0-.17 0-.34-.01-.51.78-.57 1.45-1.28 1.99-2.09z"></path></svg></SocialIcon>
-                            <SocialIcon href="#"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.04c-5.5 0-9.96 4.46-9.96 9.96s4.46 9.96 9.96 9.96 9.96-4.46 9.96-9.96S17.5 2.04 12 2.04zm4.47 11.96h-2.17v6.62h-2.91v-6.62h-1.47v-2.48h1.47v-1.83c0-1.46.89-2.26 2.2-2.26.63 0 1.16.05 1.32.07v2.22h-1.32c-.71 0-.85.34-.85.83v1.75h2.2l-.28 2.48z"></path></svg></SocialIcon>
-                            <SocialIcon href="#"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2c-2.72 0-3.05.01-4.12.06-1.06.05-1.79.22-2.42.46-.65.25-1.23.59-1.77 1.15-.55.55-.9 1.12-1.15 1.77-.24.63-.41 1.36-.46 2.42C2.01 8.95 2 9.28 2 10.5C2 13.62 3.89 16.33 6.69 17.85c.34.19.51.56.44.95l-.45 2.51c-.11.64.55 1.15 1.15.93l2.84-.94c.32-.11.68-.06.96.14c.94.67 2.04 1.04 3.2 1.04c5.52 0 10-3.79 10-8.5S17.52 2 12 2zm0 1.8c2.65 0 2.96.01 4 .06 1.02.05 1.58.21 1.9.35.42.17.72.35 1.02.66.3.3.49.6.66 1.02.14.32.3.88.35 1.9.05 1.04.06 1.35.06 4s-.01 2.96-.06 4c-.05 1.02-.21 1.58-.35 1.9-.17.42-.35.72-.66 1.02-.3.3-.6.49-1.02.66-.32.14-.88.3-1.9.35-1.04.05-1.35.06-4 .06s-2.96-.01-4-.06c-1.02-.05-1.58-.21-1.9-.35-.42-.17-.72-.35-1.02-.66-.3-.3-.49-.6-.66-1.02-.14-.32-.3-.88-.35-1.9-.05-1.04-.06-1.35-.06-4s.01-2.96.06-4c.05-1.02.21 1.58.35 1.9.17-.42.35-.72.66-1.02.3-.3.6-.49 1.02-.66.32-.14.88-.3 1.9-.35C9.04 3.81 9.35 3.8 12 3.8zm0 3.35c-2.9 0-5.25 2.35-5.25 5.25s2.35 5.25 5.25 5.25 5.25-2.35 5.25-5.25-2.35-5.25-5.25-5.25zm0 8.7c-1.92 0-3.45-1.53-3.45-3.45s1.53-3.45 3.45-3.45 3.45 1.53 3.45 3.45-1.53 3.45-3.45 3.45zm5.95-9.15c0 .61-.49 1.1-1.1 1.1s-1.1-.49-1.1-1.1.49-1.1 1.1-1.1 1.1.49 1.1 1.1z"></path></svg></SocialIcon>
+                            <SocialIcon href="#"><BiLogoTwitter className="w-full h-full p-1" /></SocialIcon>
+                            <SocialIcon href="#"><BiLogoFacebook className="w-full h-full p-1" /></SocialIcon>
+                            <SocialIcon href="#"><BiLogoInstagram className="w-full h-full p-1" /></SocialIcon>
+                            <SocialIcon href="#"><BiLogoTwitter className="w-full h-full p-1" /></SocialIcon>
+                            <SocialIcon href="#"><BiLogoFacebook className="w-full h-full p-1" /></SocialIcon>
+                            <SocialIcon href="#"><BiLogoInstagram className="w-full h-full p-1" /></SocialIcon>
                         </div>
                     </div>
 
@@ -99,11 +103,21 @@ export const Footer: React.FC<FooterProps> = ({ navigateTo, navigateToShop }) =>
                                     </button>
                                 </li>
                             ))}
+                            {/* Admin Link Added Here */}
+                            <li>
+                                <button
+                                    onClick={() => navigateTo('admin')}
+                                    className="text-white/50 hover:text-brand-yellow transition-all text-xs font-black uppercase tracking-widest flex items-center group"
+                                >
+                                    <span className="w-0 group-hover:w-3 h-[2px] bg-brand-yellow transition-all mr-0 group-hover:mr-2"></span>
+                                    অ্যাডমিন প্যানেল
+                                </button>
+                            </li>
                         </ul>
                     </div>
 
                     {/* Newsletter & Contact */}
-                    <div className="md:col-span-3 space-y-8">
+                    <div className="md:col-span-4 space-y-8">
                         <div>
                             <h3 className="text-sm font-black text-brand-yellow uppercase tracking-[0.3em] mb-6 flex items-center gap-3">
                                 <span className="w-6 h-[2px] bg-brand-yellow rounded-full"></span>

@@ -15,7 +15,10 @@ export interface Product {
 export interface Category {
   id: string;
   name: string;
-  imageUrl?: string;
+  imageUrl?: string; // Legacy
+  image_url?: string; // DB column
+  icon?: string; // DB column
+  slug?: string;
 }
 
 export interface Review {

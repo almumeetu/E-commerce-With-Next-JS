@@ -30,7 +30,7 @@ export default function AdminRoute({ children }: AdminRouteProps): React.ReactEl
             <h1 className="text-3xl font-bold text-red-600 mb-4">Access Denied</h1>
             <p className="text-gray-700">You do not have permission to view this page.</p>
             <p className="text-sm text-gray-500 mt-2">
-                This area is restricted to administrators. Your current account is logged in but does not have admin privileges.
+                This area is restricted to administrators. Your current account ({user?.email}) is logged in but does not have admin privileges.
             </p>
         </div>
       </div>

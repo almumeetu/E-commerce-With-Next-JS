@@ -63,3 +63,28 @@ body {
 .bg-brand-gradient {
   background: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #065f46 100%) !important;
 }
+
+/* Global Mobile Responsiveness Improvements */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent; /* Remove blue highlight on tap */
+}
+
+/* Better Input Fields */
+input, select, textarea {
+  @apply appearance-none outline-none;
+  font-size: 16px !important; /* Prevent zoom on iOS */
+}
+
+/* Ensure icons are aligned */
+svg {
+  @apply inline-block align-middle;
+}
+
+/* Responsive Container Padding */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

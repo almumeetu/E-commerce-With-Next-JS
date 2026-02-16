@@ -1,13 +1,67 @@
-'use client';
+'use client'; // Harmless in Vite, keeps compatibility if moved back to Next.js
 
-import { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Plus, Search, MoreVertical, Edit2, Trash2, Package, Upload, X, Check, Loader2, Star, Zap, Filter, Download, TrendingUp, AlertCircle, ChevronDown, Eye, BarChart3 } from 'lucide-react';
-import { addProduct, updateProduct, deleteProduct } from '@/src/lib/actions/products';
-import { supabase } from '@/lib/supabase';
-import { toast } from '@/lib/toast';
+import { databaseService } from '../services/databaseService';
+import { supabase } from '../services/supabase';
 
-export default function AdminProducts({ products: initialProducts }: { products: any[] }) {
-    const [products, setProducts] = useState(initialProducts);
+// Helper for toast-like notifications
+const notify = (message: string, type: 'success' | 'error' = 'success') => {
+    // In a real app, use a toast library. For now, alert is simple and works.
+    alert(`${type === 'success' ? '✅' : '❌'} ${message}`);
+};
+
+export default function AdminProducts() {
+    const [products, setProducts] = useState<any[]>([]);
+    const [categories, setCategories] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    // Fetch products and categories on mount
+    useEffect(() => {
+        loadData();
+
+        // Realtime Subscription
+        const channel = supabase
+            .channel('table-db-changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'products',
+                },
+                (payload) => {
+                    console.log('Realtime update received!', payload);
+                    loadData();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, []);
+
+    const loadData = async () => {
+        setLoading(true);
+        try {
+            const [productsData, categoriesData] = await Promise.all([
+                databaseService.getProducts(),
+                databaseService.getCategories()
+            ]);
+            setProducts(productsData || []);
+            setCategories(categoriesData || []);
+        } catch (error) {
+            console.error('Failed to load data:', error);
+            notify('ডাটা লোড করতে সমস্যা হয়েছে', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // To maintain compatibility with existing reload calls
+    const loadProducts = loadData;
+
     const [searchTerm, setSearchTerm] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -27,8 +81,8 @@ export default function AdminProducts({ products: initialProducts }: { products:
         const totalValue = products.reduce((sum, product) => sum + (product.price * product.stock), 0);
         const lowStock = products.filter(product => product.stock < 10).length;
         const outOfStock = products.filter(product => product.stock <= 0).length;
-        const newProducts = products.filter(product => product.isNew).length;
-        const popularProducts = products.filter(product => product.isPopular).length;
+        const newProducts = products.filter(product => product.is_new).length;
+        const popularProducts = products.filter(product => product.is_popular).length;
         const totalStock = products.reduce((sum, product) => sum + product.stock, 0);
 
         const categoryCounts = products.reduce((acc, product) => {
@@ -71,12 +125,12 @@ export default function AdminProducts({ products: initialProducts }: { products:
         filtered.sort((a, b) => {
             let aValue = a[sortBy];
             let bValue = b[sortBy];
-            
+
             if (typeof aValue === 'string') {
                 aValue = aValue.toLowerCase();
                 bValue = bValue.toLowerCase();
             }
-            
+
             if (sortOrder === 'asc') {
                 return aValue > bValue ? 1 : -1;
             } else {
@@ -145,7 +199,7 @@ export default function AdminProducts({ products: initialProducts }: { products:
             setPreviewUrl(publicUrl);
         } catch (error: any) {
             console.error('Error uploading image:', error);
-            alert('ইমেজ আপলোড করতে সমস্যা হয়েছে: ' + error.message);
+            notify('ইমেজ আপলোড করতে সমস্যা হয়েছে: ' + error.message, 'error');
         } finally {
             setUploadingImage(false);
         }
@@ -159,28 +213,30 @@ export default function AdminProducts({ products: initialProducts }: { products:
         const productData = {
             name: formData.get('name'),
             category: formData.get('category'),
+            // Fix: Add SKU to prevent DB error (Not Null constraint)
+            sku: formData.get('sku') ? formData.get('sku') : `SKU-${Date.now().toString(36).toUpperCase()}`,
             price: parseFloat(formData.get('price') as string),
             stock: parseInt(formData.get('stock') as string),
             unit: formData.get('unit'),
             image_url: previewUrl || editingProduct?.image_url,
             description: formData.get('description'),
-            isPopular: formData.get('isPopular') === 'on',
-            isNew: formData.get('isNew') === 'on',
+            is_popular: formData.get('isPopular') === 'on',
+            is_new: formData.get('isNew') === 'on',
             status: parseInt(formData.get('stock') as string) > 0 ? 'active' : 'out_of_stock'
         };
 
         try {
             if (editingProduct) {
-                const res = await updateProduct(editingProduct.id, productData);
+                const res = await databaseService.updateProduct(editingProduct.id, productData);
                 if (res.success) {
-                    toast.success('পণ্য আপডেট করা হয়েছে');
+                    notify('পণ্য আপডেট করা হয়েছে');
                 } else {
                     throw new Error(res.error);
                 }
             } else {
-                const res = await addProduct(productData);
+                const res = await databaseService.addProduct(productData);
                 if (res.success) {
-                    toast.success('নতুন পণ্য যোগ করা হয়েছে');
+                    notify('নতুন পণ্য যোগ করা হয়েছে');
                 } else {
                     throw new Error(res.error);
                 }
@@ -188,12 +244,36 @@ export default function AdminProducts({ products: initialProducts }: { products:
             setIsModalOpen(false);
             setEditingProduct(null);
             setPreviewUrl(null);
-            window.location.reload();
+            loadProducts(); // Reload instead of window.location.reload()
         } catch (error: any) {
-            toast.error('সমস্যা হয়েছে: ' + error.message);
+            notify('সমস্যা হয়েছে: ' + error.message, 'error');
         } finally {
             setIsSubmitting(false);
         }
+    }
+
+    const handleDelete = async (id: string) => {
+        if (window.confirm('আপনি কি নিশ্চিত যে এই পণ্যটি ডিলিট করতে চান?')) {
+            try {
+                const res = await databaseService.deleteProduct(id);
+                if (res.success) {
+                    notify('পণ্য ডিলিট করা হয়েছে');
+                    loadProducts();
+                } else {
+                    notify('সমস্যা হয়েছে: ' + res.error, 'error');
+                }
+            } catch (error: any) {
+                notify('সমস্যা হয়েছে: ' + error.message, 'error');
+            }
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <Loader2 className="animate-spin text-emerald-600" size={40} />
+            </div>
+        );
     }
 
     return (
@@ -208,7 +288,7 @@ export default function AdminProducts({ products: initialProducts }: { products:
                         onClick={handleExportProducts}
                         className="bg-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 border border-stone-100 shadow-sm hover:bg-stone-50 transition"
                     >
-                        <Download className="text-indigo-600" size={20} />
+                        <Download className="text-emerald-600" size={20} />
                         <span className="text-stone-900">এক্সপোর্ট</span>
                     </button>
                     <button
@@ -217,7 +297,7 @@ export default function AdminProducts({ products: initialProducts }: { products:
                             setPreviewUrl(null);
                             setIsModalOpen(true);
                         }}
-                        className="group bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-xl shadow-indigo-500/20 active:scale-95"
+                        className="group bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
                     >
                         <Plus size={22} className="group-hover:rotate-90 transition-transform" />
                         নতুন পণ্য যোগ করুন
@@ -227,15 +307,15 @@ export default function AdminProducts({ products: initialProducts }: { products:
 
             {/* Enhanced Analytics Dashboard */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-[2rem] border border-indigo-200">
+                <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 rounded-[2rem] border border-emerald-200">
                     <div className="flex items-center justify-between mb-4">
                         <div className="p-3 bg-white rounded-xl shadow-sm">
-                            <Package className="h-6 w-6 text-indigo-600" />
+                            <Package className="h-6 w-6 text-emerald-600" />
                         </div>
-                        <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">মোট</span>
+                        <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">মোট</span>
                     </div>
-                    <p className="text-2xl font-black text-indigo-900">{analytics.totalProducts}</p>
-                    <p className="text-xs text-indigo-600 font-bold mt-1">পণ্য সংখ্যা</p>
+                    <p className="text-2xl font-black text-emerald-900">{analytics.totalProducts}</p>
+                    <p className="text-xs text-emerald-600 font-bold mt-1">পণ্য সংখ্যা</p>
                 </div>
 
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-[2rem] border border-blue-200">
@@ -278,13 +358,13 @@ export default function AdminProducts({ products: initialProducts }: { products:
                     <input
                         type="text"
                         placeholder="পণ্যের নাম বা ক্যাটাগরি দিয়ে খুঁজুন..."
-                        className="w-full pl-14 pr-6 py-5 rounded-[2rem] border-2 border-stone-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all text-stone-700 font-medium shadow-sm"
+                        className="w-full pl-14 pr-6 py-5 rounded-[2rem] border-2 border-stone-100 bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all text-stone-700 font-medium shadow-sm"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-indigo-500 transition-colors" size={24} />
+                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-emerald-500 transition-colors" size={24} />
                 </div>
-                
+
                 <div className="flex gap-2">
                     <button
                         onClick={() => setShowFilters(!showFilters)}
@@ -295,7 +375,7 @@ export default function AdminProducts({ products: initialProducts }: { products:
                         <ChevronDown className={`text-stone-400 transition-transform ${showFilters ? 'rotate-180' : ''}`} size={16} />
                     </button>
                     <div className="bg-white px-4 py-5 rounded-[2rem] font-bold flex items-center gap-2 border border-stone-100 shadow-sm">
-                        <BarChart3 className="text-indigo-600" size={20} />
+                        <BarChart3 className="text-emerald-600" size={20} />
                         <span className="text-stone-900">{filteredAndSortedProducts.length} টি</span>
                     </div>
                 </div>
@@ -310,16 +390,14 @@ export default function AdminProducts({ products: initialProducts }: { products:
                             <select
                                 value={categoryFilter}
                                 onChange={(e) => setCategoryFilter(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-indigo-500 outline-none font-medium text-stone-700"
+                                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-emerald-500 outline-none font-medium text-stone-700"
                             >
                                 <option value="all">সব ক্যাটাগরি</option>
-                                <option value="dates">খেজুর</option>
-                                <option value="drinks">পানীয়</option>
-                                <option value="iftar">ইফতার</option>
-                                <option value="islamic">ইসলামিক</option>
-                                <option value="sehri">সেহরি</option>
-                                <option value="honey">মধু</option>
-                                <option value="nuts">বাদাম</option>
+                                {categories.map((cat) => (
+                                    <option key={cat.id} value={cat.slug || cat.name.toLowerCase()}>
+                                        {cat.name}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                         <div>
@@ -327,7 +405,7 @@ export default function AdminProducts({ products: initialProducts }: { products:
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-indigo-500 outline-none font-medium text-stone-700"
+                                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-emerald-500 outline-none font-medium text-stone-700"
                             >
                                 <option value="all">সব স্ট্যাটাস</option>
                                 <option value="in_stock">স্টক আছে</option>
@@ -344,7 +422,7 @@ export default function AdminProducts({ products: initialProducts }: { products:
                                     setSortBy(field);
                                     setSortOrder(order as 'asc' | 'desc');
                                 }}
-                                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-indigo-500 outline-none font-medium text-stone-700"
+                                className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-emerald-500 outline-none font-medium text-stone-700"
                             >
                                 <option value="created_at-desc">নতুন আগে</option>
                                 <option value="created_at-asc">পুরনো আগে</option>
@@ -374,18 +452,18 @@ export default function AdminProducts({ products: initialProducts }: { products:
                         </thead>
                         <tbody className="divide-y divide-stone-50">
                             {filteredAndSortedProducts.map((product: any) => (
-                                <tr key={product.id} className="hover:bg-indigo-50/30 transition-colors group">
+                                <tr key={product.id} className="hover:bg-emerald-50/30 transition-colors group">
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-14 h-14 rounded-2xl border-2 border-stone-100 overflow-hidden bg-stone-50 group-hover:border-indigo-200 transition-colors">
+                                            <div className="w-14 h-14 rounded-2xl border-2 border-stone-100 overflow-hidden bg-stone-50 group-hover:border-emerald-200 transition-colors">
                                                 <img src={product.image_url} alt="" className="w-full h-full object-cover" />
                                             </div>
                                             <div>
                                                 <div className="flex items-center gap-2">
-                                                    <p className="text-base font-bold text-stone-900 group-hover:text-indigo-800 transition-colors">{product.name}</p>
-                                                    {product.isNew && <span className="bg-indigo-100 text-indigo-700 text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">NEW</span>}
+                                                    <p className="text-base font-bold text-stone-900 group-hover:text-emerald-800 transition-colors">{product.name}</p>
+                                                    {product.is_new && <span className="bg-emerald-100 text-emerald-700 text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">NEW</span>}
                                                 </div>
-                                                <p className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase inline-block mt-1 ${product.status === 'active' ? 'bg-indigo-100 text-indigo-700' : 'bg-rose-100 text-rose-700'
+                                                <p className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase inline-block mt-1 ${product.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
                                                     }`}>
                                                     {product.status === 'active' ? 'অনলাইন' : 'আউট অফ স্টক'}
                                                 </p>
@@ -398,13 +476,13 @@ export default function AdminProducts({ products: initialProducts }: { products:
                                     </td>
                                     <td className="px-8 py-5">
                                         <div className="inline-flex items-center gap-2">
-                                            <div className={`w-2 h-2 rounded-full ${product.stock < 10 ? 'bg-rose-500 animate-pulse' : 'bg-indigo-500'}`}></div>
+                                            <div className={`w-2 h-2 rounded-full ${product.stock < 10 ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500'}`}></div>
                                             <span className={`text-sm font-black ${product.stock < 10 ? 'text-rose-600' : 'text-stone-700'}`}>
                                                 {product.stock} {product.unit || 'পিস'}
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5 text-base font-black text-indigo-900">৳ {product.price}</td>
+                                    <td className="px-8 py-5 text-base font-black text-emerald-900">৳ {product.price}</td>
                                     <td className="px-8 py-5 text-right">
                                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button
@@ -413,12 +491,12 @@ export default function AdminProducts({ products: initialProducts }: { products:
                                                     setPreviewUrl(product.image_url);
                                                     setIsModalOpen(true);
                                                 }}
-                                                className="p-3 bg-white border border-stone-100 hover:bg-indigo-600 hover:text-white text-indigo-600 rounded-xl transition shadow-sm"
+                                                className="p-3 bg-white border border-stone-100 hover:bg-emerald-600 hover:text-white text-emerald-600 rounded-xl transition shadow-sm"
                                             >
                                                 <Edit2 size={18} />
                                             </button>
                                             <button
-                                                onClick={() => { if (confirm('আপনি কি নিশ্চিত যে এই পণ্যটি ডিলিট করতে চান?')) deleteProduct(product.id).then(() => window.location.reload()); }}
+                                                onClick={() => handleDelete(product.id)}
                                                 className="p-3 bg-white border border-stone-100 hover:bg-rose-600 hover:text-white text-rose-600 rounded-xl transition shadow-sm"
                                             >
                                                 <Trash2 size={18} />
@@ -436,15 +514,15 @@ export default function AdminProducts({ products: initialProducts }: { products:
             {isModalOpen && (
                 <div className="fixed inset-0 bg-stone-900/40 backdrop-blur-md z-[100] flex items-center justify-center p-4 overflow-y-auto">
                     <div className="bg-white rounded-[3rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-slide-up my-8">
-                        <div className="bg-gradient-to-r from-indigo-900 to-indigo-800 p-10 text-white flex justify-between items-center relative overflow-hidden">
+                        <div className="bg-gradient-to-r from-emerald-900 to-emerald-800 p-10 text-white flex justify-between items-center relative overflow-hidden">
                             <div className="relative z-10">
                                 <h3 className="text-3xl font-black tracking-tight">{editingProduct ? 'পণ্য আপডেট করুন' : 'নতুন পণ্য যোগ করুন'}</h3>
-                                <p className="text-indigo-200/80 font-medium mt-1">পণ্যের যাবতীয় তথ্য এখানে দিন</p>
+                                <p className="text-emerald-200/80 font-medium mt-1">পণ্যের যাবতীয় তথ্য এখানে দিন</p>
                             </div>
                             <button onClick={() => setIsModalOpen(false)} className="bg-white/10 p-3 rounded-full hover:bg-white/20 transition relative z-10 active:scale-95">
                                 <X size={24} />
                             </button>
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-10 space-y-8">
@@ -454,12 +532,12 @@ export default function AdminProducts({ products: initialProducts }: { products:
                                 <div
                                     onClick={() => fileInputRef.current?.click()}
                                     className={`relative h-56 rounded-[2rem] border-4 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center overflow-hidden
-                                        ${previewUrl ? 'border-indigo-500/20 bg-indigo-50/10' : 'border-stone-100 bg-stone-50 hover:border-indigo-500/30 hover:bg-indigo-50/10'}
+                                        ${previewUrl ? 'border-emerald-500/20 bg-emerald-50/10' : 'border-stone-100 bg-stone-50 hover:border-emerald-500/30 hover:bg-emerald-50/10'}
                                     `}
                                 >
                                     {uploadingImage ? (
                                         <div className="flex flex-col items-center gap-3">
-                                            <Loader2 className="animate-spin text-indigo-600" size={40} />
+                                            <Loader2 className="animate-spin text-emerald-600" size={40} />
                                             <p className="text-sm font-bold text-stone-500">আপলোড হচ্ছে...</p>
                                         </div>
                                     ) : previewUrl ? (
@@ -472,7 +550,7 @@ export default function AdminProducts({ products: initialProducts }: { products:
                                     ) : (
                                         <div className="text-center group">
                                             <div className="bg-white p-4 rounded-3xl shadow-sm inline-block mb-3 group-hover:scale-110 transition-transform">
-                                                <Upload className="text-indigo-600" size={32} />
+                                                <Upload className="text-emerald-600" size={32} />
                                             </div>
                                             <p className="text-stone-500 font-bold">ক্লিক করে ছবি আপলোড করুন</p>
                                             <p className="text-stone-300 text-xs mt-1">JPG, PNG বা WebP (সর্বোচ্চ ৫ মেগাবাইট)</p>
@@ -485,27 +563,30 @@ export default function AdminProducts({ products: initialProducts }: { products:
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-2">
                                     <label className="text-xs font-black text-stone-400 uppercase tracking-widest leading-loose">পণ্যের নাম</label>
-                                    <input name="name" defaultValue={editingProduct?.name} required className="w-full px-6 py-4 rounded-2xl bg-stone-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 outline-none font-bold text-stone-700 transition-all placeholder:text-stone-300" placeholder="যেমন: প্রিমিয়াম মরিয়ম খেজুর" />
+                                    <input name="name" defaultValue={editingProduct?.name} required className="w-full px-6 py-4 rounded-2xl bg-stone-50 border-2 border-transparent focus:bg-white focus:border-emerald-500 outline-none font-bold text-stone-700 transition-all placeholder:text-stone-300" placeholder="যেমন: প্রিমিয়াম মরিয়ম খেজুর" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black text-stone-400 uppercase tracking-widest leading-loose">এসকেইউ (SKU)</label>
+                                    <input name="sku" defaultValue={editingProduct?.sku} className="w-full px-6 py-4 rounded-2xl bg-stone-50 border-2 border-transparent focus:bg-white focus:border-emerald-500 outline-none font-bold text-stone-700 transition-all placeholder:text-stone-300" placeholder="অটোমেটিক জেনারেট হবে (যদি খালি রাখেন)" />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-black text-stone-400 uppercase tracking-widest leading-loose">ক্যাটাগরি</label>
-                                    <select name="category" defaultValue={editingProduct?.category} className="w-full px-6 py-4 rounded-2xl bg-stone-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 outline-none font-bold text-stone-700 transition-all appearance-none cursor-pointer">
-                                        <option value="dates">খেজুর (Dates)</option>
-                                        <option value="drinks">পানীয় (Drinks)</option>
-                                        <option value="iftar">ইফতার (Iftar)</option>
-                                        <option value="islamic">ইসলামিক (Islamic)</option>
-                                        <option value="sehri">সেহরি (Sehri)</option>
-                                        <option value="honey">মধু (Honey)</option>
-                                        <option value="nuts">বাদাম (Nuts)</option>
+                                    <select name="category" defaultValue={editingProduct?.category} className="w-full px-6 py-4 rounded-2xl bg-stone-50 border-2 border-transparent focus:bg-white focus:border-emerald-500 outline-none font-bold text-stone-700 transition-all appearance-none cursor-pointer">
+                                        <option value="">ক্যাটাগরি সিলেক্ট করুন</option>
+                                        {categories.map((cat) => (
+                                            <option key={cat.id} value={cat.slug || cat.name.toLowerCase()}>
+                                                {cat.icon} {cat.name}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-black text-stone-400 uppercase tracking-widest leading-loose">মূল্য (৳)</label>
-                                    <input name="price" type="number" defaultValue={editingProduct?.price} required className="w-full px-6 py-4 rounded-2xl bg-stone-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 outline-none font-bold text-stone-700 transition-all" placeholder="0.00" />
+                                    <input name="price" type="number" defaultValue={editingProduct?.price} required className="w-full px-6 py-4 rounded-2xl bg-stone-50 border-2 border-transparent focus:bg-white focus:border-emerald-500 outline-none font-bold text-stone-700 transition-all" placeholder="0.00" />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-black text-stone-400 uppercase tracking-widest leading-loose">ইউনিট (Unit)</label>
-                                    <select name="unit" defaultValue={editingProduct?.unit || 'কেজি'} className="w-full px-6 py-4 rounded-2xl bg-stone-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 outline-none font-bold text-stone-700 transition-all appearance-none cursor-pointer">
+                                    <select name="unit" defaultValue={editingProduct?.unit || 'কেজি'} className="w-full px-6 py-4 rounded-2xl bg-stone-50 border-2 border-transparent focus:bg-white focus:border-emerald-500 outline-none font-bold text-stone-700 transition-all appearance-none cursor-pointer">
                                         <option value="কেজি">কেজি (KG)</option>
                                         <option value="গ্রাম">গ্রাম (Gram)</option>
                                         <option value="পিস">পিস (Piece)</option>
@@ -515,18 +596,18 @@ export default function AdminProducts({ products: initialProducts }: { products:
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-black text-stone-400 uppercase tracking-widest leading-loose">স্টক পরিমাণ</label>
-                                    <input name="stock" type="number" defaultValue={editingProduct?.stock} required className="w-full px-6 py-4 rounded-2xl bg-stone-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 outline-none font-bold text-stone-700 transition-all" placeholder="যেমন: ৫০" />
+                                    <input name="stock" type="number" defaultValue={editingProduct?.stock} required className="w-full px-6 py-4 rounded-2xl bg-stone-50 border-2 border-transparent focus:bg-white focus:border-emerald-500 outline-none font-bold text-stone-700 transition-all" placeholder="যেমন: ৫০" />
                                 </div>
                                 <div className="flex items-center gap-8 pt-6">
                                     <label className="flex items-center gap-3 cursor-pointer group">
-                                        <input type="checkbox" name="isNew" defaultChecked={editingProduct?.isNew} className="hidden peer" />
-                                        <div className="w-6 h-6 rounded-lg border-2 border-stone-200 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 transition-all flex items-center justify-center">
+                                        <input type="checkbox" name="isNew" defaultChecked={editingProduct?.is_new} className="hidden peer" />
+                                        <div className="w-6 h-6 rounded-lg border-2 border-stone-200 peer-checked:bg-emerald-600 peer-checked:border-emerald-600 transition-all flex items-center justify-center">
                                             <Check className="text-white" size={14} />
                                         </div>
                                         <span className="text-sm font-bold text-stone-600 group-hover:text-stone-900 transition-colors">নতুন পণ্য</span>
                                     </label>
                                     <label className="flex items-center gap-3 cursor-pointer group">
-                                        <input type="checkbox" name="isPopular" defaultChecked={editingProduct?.isPopular} className="hidden peer" />
+                                        <input type="checkbox" name="isPopular" defaultChecked={editingProduct?.is_popular} className="hidden peer" />
                                         <div className="w-6 h-6 rounded-lg border-2 border-stone-200 peer-checked:bg-purple-600 peer-checked:border-purple-600 transition-all flex items-center justify-center">
                                             <Check className="text-white" size={14} />
                                         </div>
@@ -537,7 +618,7 @@ export default function AdminProducts({ products: initialProducts }: { products:
 
                             <div className="space-y-2">
                                 <label className="text-xs font-black text-stone-400 uppercase tracking-widest leading-loose">বিস্তারিত বিবরণ</label>
-                                <textarea name="description" defaultValue={editingProduct?.description} rows={4} className="w-full px-6 py-4 rounded-2xl bg-stone-50 border-2 border-transparent focus:bg-white focus:border-indigo-500 outline-none font-bold text-stone-700 transition-all resize-none" placeholder="পণ্য সম্পর্কে বিস্তারিত লিখুন..." />
+                                <textarea name="description" defaultValue={editingProduct?.description} rows={4} className="w-full px-6 py-4 rounded-2xl bg-stone-50 border-2 border-transparent focus:bg-white focus:border-emerald-500 outline-none font-bold text-stone-700 transition-all resize-none" placeholder="পণ্য সম্পর্কে বিস্তারিত লিখুন..." />
                             </div>
 
                             <div className="flex gap-4 pt-4">
@@ -545,7 +626,7 @@ export default function AdminProducts({ products: initialProducts }: { products:
                                 <button
                                     type="submit"
                                     disabled={isSubmitting || uploadingImage}
-                                    className="flex-[2] px-8 py-5 rounded-[2rem] bg-indigo-600 text-white font-black hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
+                                    className="flex-[2] px-8 py-5 rounded-[2rem] bg-emerald-600 text-white font-black hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-500/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
                                 >
                                     {isSubmitting ? (
                                         <>

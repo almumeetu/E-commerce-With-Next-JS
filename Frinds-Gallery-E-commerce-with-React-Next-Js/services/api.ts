@@ -66,11 +66,32 @@ export const getProducts = async (): Promise<Product[]> => {
 
 export const getCategories = async (): Promise<Category[]> => {
   try {
+    const categories = await databaseService.getCategories();
+    if (categories && categories.length > 0) {
+      return categories.map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        icon: c.icon || '📦',
+        slug: c.slug
+      }));
+    }
     return await categoryServiceAdapter.getAllCategories();
   } catch (error) {
     console.error('Error fetching categories:', error);
     return [];
   }
+};
+
+export const addCategory = async (category: { name: string; icon?: string; slug?: string }) => {
+  return await databaseService.addCategory(category);
+};
+
+export const updateCategory = async (id: string, updates: any) => {
+  return await databaseService.updateCategory(id, updates);
+};
+
+export const deleteCategory = async (id: string) => {
+  return await databaseService.deleteCategory(id);
 };
 
 export const getCustomers = async (): Promise<Customer[]> => {
@@ -164,21 +185,25 @@ export const createOrder = async (
   currentUser: Customer | null
 ): Promise<Order> => {
   try {
-    const supabaseOrder = await databaseService.placeOrder(
+    const response = await databaseService.placeOrder(
       { name: orderData.customerName, phone: orderData.phone || '', address: orderData.shippingAddress },
       orderData.items.map(item => ({ id: item.productId, quantity: item.quantity, price: item.price })),
       orderData.totalAmount
     );
 
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to place order');
+    }
+
     return {
-      id: supabaseOrder.success ? String(supabaseOrder.orderId) : 'temp_' + Date.now(),
-      orderId: supabaseOrder.success ? `ORD-${supabaseOrder.orderId}` : 'PENDING',
+      id: String(response.orderId),
+      orderId: `ORD-${String(response.orderId).slice(0, 8).toUpperCase()}`,
       customerName: orderData.customerName,
       customerId: currentUser?.id,
       items: orderData.items,
       totalAmount: orderData.totalAmount,
       shippingAddress: orderData.shippingAddress,
-      status: OrderStatus.Processing,
+      status: OrderStatus.Processing, // Default initial status
       date: new Date().toISOString()
     };
 
@@ -220,7 +245,12 @@ export const updateOrderStatus = async (orderId: string, status: Order['status']
 
 // --- Product Management (Supabase Admin) ---
 export const addProduct = async (newProductData: Omit<Product, 'id' | 'rating' | 'reviewCount'>): Promise<Product> => {
-  return await productServiceAdapter.createProduct(newProductData);
+  const productWithDefaults = {
+    ...newProductData,
+    rating: 0,
+    reviewCount: 0
+  };
+  return await productServiceAdapter.createProduct(productWithDefaults);
 };
 
 export const updateProduct = async (updatedProductData: Product): Promise<Product> => {

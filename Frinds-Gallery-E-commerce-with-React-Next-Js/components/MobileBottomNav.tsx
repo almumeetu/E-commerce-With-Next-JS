@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Page } from '../App';
-import { Home, ShoppingBag, Heart, User } from 'lucide-react';
+import { BiHomeAlt, BiShoppingBag, BiHeart, BiUser } from 'react-icons/bi';
 
 interface MobileBottomNavProps {
   currentPage: Page;
@@ -9,10 +9,10 @@ interface MobileBottomNavProps {
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ currentPage, navigateTo }) => {
   const navItems = [
-    { page: 'home' as Page, label: 'হোম', icon: Home },
-    { page: 'shop' as Page, label: 'শপ', icon: ShoppingBag },
-    { page: 'wishlist' as Page, label: 'পছন্দ', icon: Heart },
-    { page: 'account' as Page, label: 'অ্যাকাউন্ট', icon: User },
+    { page: 'home' as Page, label: 'হোম', icon: BiHomeAlt },
+    { page: 'shop' as Page, label: 'শপ', icon: BiShoppingBag },
+    { page: 'wishlist' as Page, label: 'পছন্দ', icon: BiHeart },
+    { page: 'account' as Page, label: 'অ্যাকাউন্ট', icon: BiUser },
   ];
 
   return (

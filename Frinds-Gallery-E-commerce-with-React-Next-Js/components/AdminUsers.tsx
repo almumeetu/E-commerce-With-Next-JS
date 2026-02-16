@@ -1,24 +1,49 @@
-'use client';
+import React, { useState, useEffect } from 'react';
+import { Search, User, Phone, MapPin, ShoppingBag, DollarSign, Calendar, Loader2 } from 'lucide-react';
+import { databaseService } from '../services/databaseService';
 
-import { useState } from 'react';
-import { Search, User, Phone, MapPin, ShoppingBag, DollarSign, Calendar } from 'lucide-react';
-
-export default function AdminUsers({ customers }: { customers: any[] }) {
+export default function AdminUsers() {
+    const [customers, setCustomers] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        loadCustomers();
+    }, []);
+
+    const loadCustomers = async () => {
+        setLoading(true);
+        try {
+            const data = await databaseService.getCustomers();
+            setCustomers(data || []);
+        } catch (error) {
+            console.error('Failed to load customers:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const filteredCustomers = customers.filter(c =>
         c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.phone.includes(searchTerm)
     );
 
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <Loader2 className="animate-spin text-emerald-600" size={40} />
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-black text-stone-900 tracking-tight">গ্রাহক তালিকা</h2>
+                    <h2 className="text-3xl font-black text-stone-900 tracking-tight">গ্রাহক ব্যবস্থাপনা</h2>
                     <p className="text-stone-500 font-medium">আপনার স্টোরের সকল নিবন্ধিত ও অনিয়মিত গ্রাহক</p>
                 </div>
-                <div className="bg-indigo-50 text-indigo-700 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 border border-indigo-100 shadow-sm transition-all">
+                <div className="bg-emerald-50 text-emerald-700 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 border border-emerald-100 shadow-sm transition-all">
                     <User size={20} /> মোট {customers.length} জন গ্রাহক
                 </div>
             </div>
@@ -27,18 +52,18 @@ export default function AdminUsers({ customers }: { customers: any[] }) {
                 <input
                     type="text"
                     placeholder="নাম বা ফোন নম্বর দিয়ে গ্রাহক খুঁজুন..."
-                    className="w-full pl-14 pr-6 py-5 rounded-[2rem] border-2 border-stone-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all text-stone-700 font-medium shadow-sm"
+                    className="w-full pl-14 pr-6 py-5 rounded-[2rem] border-2 border-stone-100 bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all text-stone-700 font-medium shadow-sm"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-indigo-500 transition-colors" size={24} />
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-emerald-500 transition-colors" size={24} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredCustomers.map((customer, i) => (
-                    <div key={i} className="bg-white rounded-[2.5rem] border border-stone-100 shadow-sm hover:shadow-xl hover:shadow-stone-200/50 transition-all p-8 flex flex-col group border-b-4 border-b-transparent hover:border-b-indigo-500">
+                    <div key={i} className="bg-white rounded-[2.5rem] border border-stone-100 shadow-sm hover:shadow-xl hover:shadow-stone-200/50 transition-all p-8 flex flex-col group border-b-4 border-b-transparent hover:border-b-emerald-500">
                         <div className="flex items-start justify-between mb-6">
-                            <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors shadow-inner">
+                            <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors shadow-inner">
                                 <User size={32} />
                             </div>
                             <div className="text-right">
@@ -48,7 +73,7 @@ export default function AdminUsers({ customers }: { customers: any[] }) {
                             </div>
                         </div>
 
-                        <h3 className="text-xl font-black text-stone-900 mb-1 group-hover:text-indigo-800 transition-colors">{customer.name}</h3>
+                        <h3 className="text-xl font-black text-stone-900 mb-1 group-hover:text-emerald-800 transition-colors">{customer.name}</h3>
                         <div className="flex items-center gap-2 text-stone-400 mb-6">
                             <Phone size={14} />
                             <span className="text-sm font-bold">{customer.phone}</span>
@@ -68,9 +93,9 @@ export default function AdminUsers({ customers }: { customers: any[] }) {
                         <div className="grid grid-cols-2 gap-4 pt-6 border-t border-stone-100">
                             <div>
                                 <p className="text-[10px] text-stone-400 font-black uppercase tracking-widest mb-1">মোট খরচ</p>
-                                <div className="flex items-center gap-1 text-indigo-700 font-black text-lg">
+                                <div className="flex items-center gap-1 text-emerald-700 font-black text-lg">
                                     <DollarSign size={16} />
-                                    <span>{customer.totalSpent}</span>
+                                    <span>{customer.totalSpent.toLocaleString()}</span>
                                 </div>
                             </div>
                             <div className="text-right">

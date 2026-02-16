@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { supabase } from '../services/supabase';
-import { LogIn, Moon, Loader2 } from 'lucide-react';
+import { BiLogIn, BiMoon, BiLoaderAlt } from 'react-icons/bi';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -31,7 +31,7 @@ export default function Auth() {
 
         <div className="flex flex-col items-center mb-10">
           <div className="bg-emerald-600 p-4 rounded-3xl mb-6 shadow-xl shadow-emerald-600/20">
-            <Moon className="h-10 w-10 text-white" fill="currentColor" />
+            <BiMoon className="h-10 w-10 text-white" />
           </div>
           <h1 className="text-3xl font-black text-stone-900 tracking-tight">অ্যাডমিন লগইন</h1>
           <p className="text-stone-500 mt-2 font-medium">ড্যাশবোর্ড এক্সেস করুন</p>
@@ -67,7 +67,7 @@ export default function Auth() {
             type="submit"
             className="w-full bg-emerald-600 text-white py-5 rounded-2xl font-black text-xl hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-3 active:scale-95"
           >
-            {loading ? <Loader2 className="animate-spin" /> : <><LogIn size={24} /> প্রবেশ করুন</>}
+            {loading ? <BiLoaderAlt className="animate-spin" /> : <><BiLogIn size={24} /> প্রবেশ করুন</>}
           </button>
         </form>
 
