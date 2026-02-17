@@ -67,13 +67,20 @@ body {
 /* Global Mobile Responsiveness Improvements */
 html {
   scroll-behavior: smooth;
-  -webkit-tap-highlight-color: transparent; /* Remove blue highlight on tap */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Fluid Typography */
+@media (max-width: 640px) {
+  h1 { @apply text-3xl sm:text-4xl; }
+  h2 { @apply text-2xl sm:text-3xl; }
+  p { @apply text-sm sm:text-base; }
 }
 
 /* Better Input Fields */
 input, select, textarea {
   @apply appearance-none outline-none;
-  font-size: 16px !important; /* Prevent zoom on iOS */
+  font-size: 16px !important;
 }
 
 /* Ensure icons are aligned */
@@ -81,10 +88,38 @@ svg {
   @apply inline-block align-middle;
 }
 
-/* Responsive Container Padding */
-@media (max-width: 640px) {
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
+/* Better Active States for Mobile */
+@media (max-width: 1024px) {
+  button:active, .active-scale:active {
+    @apply scale-95;
+    transition: transform 0.1s ease-out;
   }
+}
+
+/* Premium Card Scaling */
+.premium-card {
+  @apply transition-all duration-300 active:scale-[0.98] sm:hover:-translate-y-2 sm:hover:shadow-2xl;
+}
+
+/* Safe Area Insets for modern devices */
+.safe-padding-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-margin-bottom {
+  margin-bottom: env(safe-area-inset-bottom);
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #10b981;
+  border-radius: 10px;
 }

@@ -188,72 +188,106 @@ export const Header: React.FC<HeaderProps> = ({ navigateTo, navigateToShop, cart
                 </div>
             </div>
 
-            <div className={`lg:hidden fixed inset-0 z-50 transition-opacity ${isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} role="dialog" aria-modal="true">
-                <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm" onClick={() => setIsMenuOpen(false)}></div>
+            <div className={`lg:hidden fixed inset-0 z-[60] transition-all duration-500 ${isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} role="dialog" aria-modal="true">
+                <div className="fixed inset-0 bg-brand-green-deep/40 backdrop-blur-md transition-opacity duration-500" onClick={() => setIsMenuOpen(false)}></div>
 
-                <div className={`fixed inset-y-0 left-0 w-4/5 max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out flex flex-col h-full ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                    <div className="p-4 flex justify-between items-center border-b">
-                        <button onClick={() => handleNavClick('home')}><Logo /></button>
-                        <button onClick={() => setIsMenuOpen(false)} className="p-2 text-slate-500 hover:text-brand-green" aria-label="Close menu">
-                            <XMarkIcon />
+                <div className={`fixed inset-y-0 left-0 w-[85%] max-w-sm bg-white shadow-2xl transform transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col h-full rounded-r-[2.5rem] ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                    <div className="p-6 flex justify-between items-center border-b border-slate-50 bg-brand-green-deep rounded-tr-[2.5rem]">
+                        <button onClick={() => handleNavClick('home')} className="transform hover:scale-105 transition-transform"><Logo /></button>
+                        <button onClick={() => setIsMenuOpen(false)} className="p-3 text-white/70 hover:text-brand-yellow bg-white/10 hover:bg-white/20 rounded-2xl transition-all" aria-label="Close menu">
+                            <XMarkIcon className="w-6 h-6" />
                         </button>
                     </div>
 
-                    <div className="flex-grow overflow-y-auto">
-                        <div className="p-4">
-                            <div className="relative mb-4">
-                                <input type="search" placeholder="পণ্য খুঁজুন..." className="w-full rounded-full pl-4 pr-10" />
-                                <button className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-slate-500 hover:text-brand-green">
-                                    <SearchIcon />
-                                </button>
+                    <div className="flex-grow overflow-y-auto custom-scrollbar px-6 py-8">
+                        <div className="mb-8">
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <SearchIcon className="h-5 w-5 text-slate-400 group-focus-within:text-brand-green transition-colors" />
+                                </div>
+                                <input
+                                    type="search"
+                                    placeholder="পণ্য খুঁজুন..."
+                                    className="w-full bg-slate-50 border-none rounded-2xl pl-12 pr-4 py-4 text-sm focus:ring-2 focus:ring-brand-green/20 focus:bg-white transition-all shadow-inner font-medium"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div>
+                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-4 mb-4">মেনু</h3>
+                                <nav className="grid gap-2">
+                                    <button onClick={() => handleNavClick('home')} className="flex items-center gap-4 w-full text-left font-black py-4 px-5 rounded-2xl text-slate-700 hover:bg-brand-green/5 hover:text-brand-green transition-all group active:scale-[0.98]">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-brand-green group-hover:text-white transition-colors">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                                        </div>
+                                        <span className="uppercase tracking-widest text-sm">হোম</span>
+                                    </button>
+                                    <button onClick={() => navigateToShop('all')} className="flex items-center gap-4 w-full text-left font-black py-4 px-5 rounded-2xl text-slate-700 hover:bg-brand-green/5 hover:text-brand-green transition-all group active:scale-[0.98]">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-brand-green group-hover:text-white transition-colors">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                                        </div>
+                                        <span className="uppercase tracking-widest text-sm">শপ</span>
+                                    </button>
+                                    <button onClick={() => handleNavClick('hotDeals')} className="flex items-center gap-4 w-full text-left font-black py-4 px-5 rounded-2xl text-brand-green hover:bg-brand-green/5 transition-all group active:scale-[0.98]">
+                                        <div className="w-10 h-10 rounded-xl bg-brand-green/10 flex items-center justify-center text-brand-green group-hover:bg-brand-green group-hover:text-white transition-colors">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        </div>
+                                        <span className="uppercase tracking-widest text-sm">হট ডিল</span>
+                                    </button>
+                                </nav>
                             </div>
 
-                            <nav className="space-y-1">
-                                <button onClick={() => handleNavClick('home')} className="block w-full text-left font-semibold py-2.5 px-3 rounded-md hover:bg-slate-100">হোম</button>
-                                <button onClick={() => navigateToShop('all')} className="block w-full text-left font-semibold py-2.5 px-3 rounded-md hover:bg-slate-100">শপ</button>
-                                <button onClick={() => handleNavClick('hotDeals')} className="block w-full text-left font-semibold py-2.5 px-3 rounded-md hover:bg-slate-100">হট ডিল</button>
-                            </nav>
-                        </div>
-
-                        <div className="border-t p-4">
-                            <h3 className="font-bold text-slate-800 px-3 py-2">ক্যাটাগরি</h3>
-                            <nav className="space-y-1">
-                                {categories.map(cat => (
-                                    <button key={cat.id} onClick={() => handleCategoryClick(cat.id)} className="block w-full text-left py-2.5 px-3 rounded-md hover:bg-slate-100 text-slate-600">{cat.name}</button>
-                                ))}
-                            </nav>
-                        </div>
-
-                        <div className="border-t p-4">
-                            <nav className="space-y-1">
-                                <button onClick={() => handleNavClick('about')} className="block w-full text-left font-semibold py-2.5 px-3 rounded-md hover:bg-slate-100">আমাদের সম্পর্কে</button>
-                                <button onClick={() => handleNavClick('contact')} className="block w-full text-left font-semibold py-2.5 px-3 rounded-md hover:bg-slate-100">যোগাযোগ</button>
-                            </nav>
+                            <div>
+                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-4 mb-4">ক্যাটাগরি</h3>
+                                <nav className="grid gap-2">
+                                    {categories.map(cat => (
+                                        <button
+                                            key={cat.id}
+                                            onClick={() => handleCategoryClick(cat.id)}
+                                            className="flex items-center justify-between w-full text-left font-bold py-4 px-6 rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-brand-green transition-all border border-transparent hover:border-slate-100 active:scale-[0.98]"
+                                        >
+                                            <span className="text-sm font-black uppercase tracking-wider">{cat.name}</span>
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7"></path></svg>
+                                        </button>
+                                    ))}
+                                </nav>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="p-4 border-t bg-slate-50">
+                    <div className="p-6 border-t border-slate-50 bg-slate-50/50 rounded-br-[2.5rem]">
                         {currentUser ? (
-                            <div className="space-y-2">
-                                <p className="px-3 text-sm text-slate-500">হ্যালো, <strong>{currentUser.name}</strong></p>
-                                <button onClick={() => handleNavClick('account')} className="w-full flex items-center text-left px-3 py-2.5 rounded-md text-sm font-semibold text-slate-700 hover:bg-slate-200">
-                                    <UserIcon className="mr-3" /> আমার অ্যাকাউন্ট
-                                </button>
-                                <button onClick={() => handleNavClick('admin')} className="w-full flex items-center text-left px-3 py-2.5 rounded-md text-sm font-semibold text-slate-700 hover:bg-slate-200">
-                                    <Cog6ToothIcon className="mr-3" /> অ্যাডমিন ড্যাশবোর্ড
-                                </button>
-                                <button onClick={() => { onLogout(); setIsMenuOpen(false); }} className="w-full flex items-center text-left px-3 py-2.5 rounded-md text-sm font-semibold text-red-600 hover:bg-red-50">
-                                    <ArrowLeftOnRectangleIcon className="mr-3" /> লগআউট
-                                </button>
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-4 bg-white p-4 rounded-[1.5rem] shadow-sm ring-1 ring-slate-100">
+                                    <div className="w-12 h-12 bg-brand-yellow rounded-2xl flex items-center justify-center font-black text-brand-green-deep shadow-lg">
+                                        {currentUser.name.charAt(0)}
+                                    </div>
+                                    <div className="flex-grow overflow-hidden">
+                                        <p className="font-black text-brand-green-deep truncate">{currentUser.name}</p>
+                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">অ্যাকাউন্ট প্রোফাইল</p>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button onClick={() => handleNavClick('account')} className="flex items-center justify-center gap-3 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-white text-slate-700 shadow-sm border border-slate-100 hover:bg-slate-50 transition-all active:scale-95">
+                                        প্রোফাইল
+                                    </button>
+                                    <button onClick={() => { onLogout(); setIsMenuOpen(false); }} className="flex items-center justify-center gap-3 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-red-50 text-red-600 hover:bg-red-100 transition-all active:scale-95">
+                                        লগআউট
+                                    </button>
+                                </div>
                             </div>
                         ) : (
-                            <button onClick={() => handleNavClick('account')} className="w-full bg-brand-green text-white py-2.5 rounded-lg font-semibold hover:bg-brand-green-dark transition-all">
+                            <button onClick={() => handleNavClick('account')} className="w-full bg-brand-green-deep text-brand-yellow py-5 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-brand-green transition-all active:scale-95 flex items-center justify-center gap-3">
+                                <UserIcon className="w-5 h-5" />
                                 লগইন / রেজিস্টার
                             </button>
                         )}
+                        <p className="text-center text-[10px] font-bold text-slate-400 mt-6 uppercase tracking-[0.2em]">Friend's Gallery &copy; 2024</p>
                     </div>
                 </div>
             </div>
+
         </header>
     );
 };

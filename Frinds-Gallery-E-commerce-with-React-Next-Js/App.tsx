@@ -28,7 +28,25 @@ const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m
 
 export type Page = 'home' | 'shop' | 'productDetail' | 'checkout' | 'orderSuccess' | 'wishlist' | 'admin' | 'utility' | 'hotDeals' | 'about' | 'contact' | 'account' | 'returns' | 'terms';
 
+const BackToTop: React.FC = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  useEffect(() => {
+    const toggleVisibility = () => setIsVisible(window.scrollY > 500);
+    window.addEventListener('scroll', toggleVisibility);
+    return () => window.removeEventListener('scroll', toggleVisibility);
+  }, []);
+  return (
+    <button
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      className={`fixed bottom-24 right-6 p-4 rounded-2xl bg-brand-green-deep text-brand-yellow shadow-2xl transition-all duration-500 z-50 transform hover:scale-110 active:scale-95 border-2 border-brand-yellow/30 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
+    >
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 15l7-7 7 7" /></svg>
+    </button>
+  );
+};
+
 const App: React.FC = () => {
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -298,7 +316,9 @@ const App: React.FC = () => {
       <FloatingCart cart={cart} products={products} navigateTo={navigateTo} />
       <FloatingSocials />
       <MobileBottomNav currentPage={currentPage} navigateTo={navigateTo} />
+      <BackToTop />
       {quickViewProduct && (
+
         <QuickViewModal
           product={quickViewProduct}
           onClose={closeQuickView}

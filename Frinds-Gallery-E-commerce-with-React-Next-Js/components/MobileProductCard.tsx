@@ -92,53 +92,56 @@ export const MobileProductCard: React.FC<MobileProductCardProps> = ({ product, o
         )}
       </div>
 
-      <div className="p-6 flex flex-col flex-grow bg-white">
+      <div className="p-5 sm:p-6 flex flex-col flex-grow bg-white">
         <div className="flex-grow">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-green mb-2 block">{product.category}</span>
+          <div className="flex justify-between items-start mb-2">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-green">{product.category}</span>
+            <StarRating rating={product.rating} reviewCount={product.reviewCount} />
+          </div>
           <h3
-            className="text-base sm:text-lg font-bold text-slate-800 cursor-pointer hover:text-brand-green transition-colors line-clamp-2 mb-3 leading-snug"
+            className="text-base sm:text-lg font-bold text-slate-800 cursor-pointer hover:text-brand-green transition-colors line-clamp-2 mb-4 leading-snug h-12 sm:h-auto"
             onClick={() => onProductSelect(product)}
           >
             {product.name}
           </h3>
-          <div className="mb-4">
-            <StarRating rating={product.rating} reviewCount={product.reviewCount} />
-          </div>
         </div>
 
-        <div className="mt-auto pt-5 border-t border-slate-50">
-          <div className="flex items-baseline gap-3 mb-5">
-            <span className="text-2xl font-black text-brand-green-deep">৳{product.price.toLocaleString('bn-BD')}</span>
-            {product.originalPrice && product.originalPrice > product.price && (
-              <span className="text-sm text-slate-400 line-through font-medium">৳{product.originalPrice.toLocaleString('bn-BD')}</span>
-            )}
-          </div>
-
-          <div className="grid grid-cols-5 gap-3">
+        <div className="mt-auto pt-4 border-t border-slate-50">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex flex-col">
+              <span className="text-2xl font-black text-brand-green-deep leading-none">৳{product.price.toLocaleString('bn-BD')}</span>
+              {product.originalPrice && product.originalPrice > product.price && (
+                <span className="text-xs text-slate-400 line-through font-bold mt-1">৳{product.originalPrice.toLocaleString('bn-BD')}</span>
+              )}
+            </div>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 addToCart(product.id, 1);
               }}
               disabled={product.stock === 0}
-              className="col-span-1 flex items-center justify-center bg-slate-900 text-white rounded-xl hover:bg-brand-green-deep transition-all duration-300 disabled:opacity-50 h-12 shadow-lg"
+              className="w-12 h-12 flex items-center justify-center bg-slate-50 text-slate-900 rounded-2xl hover:bg-brand-green hover:text-white transition-all duration-300 disabled:opacity-50 shadow-sm border border-slate-100 active:scale-90"
             >
               <ShoppingCartIcon className="h-5 w-5" />
             </button>
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                buyNow(product.id, 1);
-              }}
-              disabled={product.stock === 0}
-              className="col-span-4 flex items-center justify-center bg-brand-green-deep text-brand-yellow rounded-xl hover:bg-brand-green transition-all duration-300 disabled:opacity-50 font-black text-xs tracking-[0.1em] uppercase h-12 shadow-[0_10px_20px_-5px_rgba(6,78,59,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(6,78,59,0.4)] active:scale-95"
-            >
-              এখনই কিনুন
-            </button>
           </div>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              buyNow(product.id, 1);
+            }}
+            disabled={product.stock === 0}
+            className="w-full flex items-center justify-center bg-brand-green-deep text-brand-yellow rounded-2xl py-4 hover:bg-brand-green transition-all duration-500 disabled:opacity-50 font-black text-xs tracking-[0.2em] uppercase shadow-[0_10px_20px_-5px_rgba(2,44,34,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(2,44,34,0.4)] active:scale-95 group/btn"
+          >
+            <span className="flex items-center gap-2">
+              এখনই কিনুন
+              <svg className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+            </span>
+          </button>
         </div>
       </div>
+
     </div>
   );
 };
