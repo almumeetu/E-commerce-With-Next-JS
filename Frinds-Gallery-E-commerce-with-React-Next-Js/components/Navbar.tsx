@@ -1,12 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { BiShoppingBag, BiMoon, BiHeart, BiSearch, BiArrowBack } from 'react-icons/bi';
+import { Link, useLocation } from 'react-router-dom';
+import { BiShoppingBag as ShoppingBag, BiMoon as Moon, BiHeart as Heart, BiSearch as Search, BiArrowBack as ArrowLeft } from 'react-icons/bi';
 import { PRODUCTS } from '../constants';
 import { Product } from '../types';
-import { useCart } from '@/src/context/CartContext';
+import { useCart } from '../src/context/CartContext';
 
 interface NavbarProps {
   onCartClick?: () => void;
@@ -14,7 +13,7 @@ interface NavbarProps {
 
 export default function Navbar({ onCartClick }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
-  const pathname = usePathname();
+  const { pathname } = useLocation();
   const { cartCount, wishlistCount } = useCart();
 
   // Search State
@@ -119,7 +118,7 @@ export default function Navbar({ onCartClick }: NavbarProps) {
                         onClick={handleResultClick}
                         className="flex items-center p-3 hover:bg-indigo-50 border-b border-stone-100 last:border-none transition group"
                       >
-                        <img src={product.image} alt={product.name} className="w-12 h-12 object-cover rounded-lg bg-stone-100" />
+                        <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-cover rounded-lg bg-stone-100" />
                         <div className="ml-3">
                           <p className="text-sm font-semibold text-stone-800 group-hover:text-indigo-700 transition">{product.name}</p>
                           <p className="text-xs text-stone-500 capitalize">{product.category}</p>
@@ -211,7 +210,7 @@ export default function Navbar({ onCartClick }: NavbarProps) {
                       onClick={handleResultClick}
                       className="flex items-center p-4 border-b border-indigo-800/50 last:border-none active:bg-indigo-800/50 transition"
                     >
-                      <img src={product.image} alt={product.name} className="w-14 h-14 object-cover rounded-lg bg-indigo-800" />
+                      <img src={product.imageUrl} alt={product.name} className="w-14 h-14 object-cover rounded-lg bg-indigo-800" />
                       <div className="ml-4 flex-1">
                         <p className="text-base font-medium text-indigo-50">{product.name}</p>
                         <p className="text-sm text-rose-400 font-bold mt-1">৳ {product.price}</p>

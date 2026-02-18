@@ -29,12 +29,15 @@ const menuItems = [
     { id: 'profile', label: 'প্রোফাইল', icon: <UserIcon /> },
 ];
 
+import { useAuthAndAdmin } from '../hooks/useAuthAndAdmin';
+
 export const AccountPage: React.FC<AccountPageProps> = ({ navigateTo, currentUser, orders, onLogout }) => {
+    const { isAdmin } = useAuthAndAdmin();
     const [activeTab, setActiveTab] = useState('dashboard');
-    const userOrders = orders.filter(order => order.customerId === currentUser.id).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const userOrders = orders.filter(order => order.customerId === currentUser.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     const renderContent = () => {
-        switch(activeTab) {
+        switch (activeTab) {
             case 'orders':
                 return (
                     <div>
@@ -89,7 +92,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigateTo, currentUse
                     <div>
                         <p className="text-lg">হ্যালো, <strong>{currentUser.name}</strong>!</p>
                         <p className="mt-2 text-gray-600">এখান থেকে আপনি আপনার সাম্প্রতিক অর্ডার দেখতে এবং আপনার অ্যাকাউন্ট তথ্য পরিচালনা করতে পারেন।</p>
-                         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="bg-gray-50 p-4 rounded-lg border">
                                 <p className="text-sm text-gray-500">মোট অর্ডার</p>
                                 <p className="text-2xl font-bold text-gray-900">{currentUser.totalOrders}</p>
@@ -103,7 +106,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigateTo, currentUse
                 );
         }
     };
-    
+
     return (
         <div className="bg-gray-50 py-12 min-h-[60vh]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -117,24 +120,38 @@ export const AccountPage: React.FC<AccountPageProps> = ({ navigateTo, currentUse
                                     <li key={item.id}>
                                         <button
                                             onClick={() => setActiveTab(item.id)}
-                                            className={`w-full flex items-center text-left px-3 py-2.5 rounded-md text-sm transition-colors ${
-                                                activeTab === item.id
+                                            className={`w-full flex items-center text-left px-3 py-2.5 rounded-md text-sm transition-colors ${activeTab === item.id
                                                 ? 'bg-brand-green text-white font-semibold shadow'
                                                 : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                                            }`}
+                                                }`}
                                         >
-                                           <span className="mr-3 w-5 h-5">{item.icon}</span>
-                                           {item.label}
+                                            <span className="mr-3 w-5 h-5">{item.icon}</span>
+                                            {item.label}
                                         </button>
                                     </li>
                                 ))}
+                                {isAdmin && (
+                                    <li>
+                                        <button
+                                            onClick={() => navigateTo('admin')}
+                                            className="w-full flex items-center text-left px-3 py-2.5 rounded-md text-sm text-red-600 font-semibold hover:bg-red-50 hover:text-red-700 transition-colors"
+                                        >
+                                            <span className="mr-3 w-5 h-5">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                                                    <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 9a.75.75 0 0 0-1.5 0v2.25H9a.75.75 0 0 0 0 1.5h2.25V15a.75.75 0 0 0 1.5 0v-2.25H15a.75.75 0 0 0 0-1.5h-2.25V9Z" clipRule="evenodd" />
+                                                </svg>
+                                            </span>
+                                            অ্যাডমিন ড্যাশবোর্ড
+                                        </button>
+                                    </li>
+                                )}
                                 <li>
                                     <button
                                         onClick={onLogout}
                                         className="w-full flex items-center text-left px-3 py-2.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                                     >
-                                       <span className="mr-3 w-5 h-5"><ArrowLeftOnRectangleIcon /></span>
-                                       লগআউট
+                                        <span className="mr-3 w-5 h-5"><ArrowLeftOnRectangleIcon /></span>
+                                        লগআউট
                                     </button>
                                 </li>
                             </ul>

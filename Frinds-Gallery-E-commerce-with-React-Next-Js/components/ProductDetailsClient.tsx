@@ -1,26 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import { Product } from '@/types';
-import { useCart } from '@/src/context/CartContext';
+import { Product } from '../types';
+import { useCart } from '../src/context/CartContext';
 import { ShoppingBag, ShoppingCart, Heart, Plus, Minus, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function ProductDetailsClient({ product }: { product: any }) {
     const { addToCart, wishlist, toggleWishlist } = useCart();
     const [quantity, setQuantity] = useState(1);
-    const router = useRouter();
+    const navigate = useNavigate();
 
     const handleBuyNow = () => {
         addToCart({ ...product, quantity });
-        router.push('/checkout');
+        navigate('/checkout');
     };
 
     return (
         <div className="min-h-screen bg-stone-50 pt-24 pb-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <Link href="/shop" className="inline-flex items-center gap-2 text-stone-500 hover:text-indigo-700 font-bold mb-8 transition">
+                <Link to="/shop" className="inline-flex items-center gap-2 text-stone-500 hover:text-indigo-700 font-bold mb-8 transition">
                     <ArrowLeft size={20} /> কেনাকাটা চালিয়ে যান
                 </Link>
 
@@ -30,7 +29,7 @@ export default function ProductDetailsClient({ product }: { product: any }) {
                         {/* Image Section */}
                         <div className="lg:w-1/2 p-8 lg:p-12 bg-stone-50">
                             <div className="aspect-square rounded-[32px] overflow-hidden bg-white shadow-inner flex items-center justify-center">
-                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                <img src={product.imageUrl || product.image} alt={product.name} className="w-full h-full object-cover" />
                             </div>
                         </div>
 

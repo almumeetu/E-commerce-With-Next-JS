@@ -3,7 +3,11 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './src/index.css';
+import { SiteContentProvider } from './context/SiteContentContext';
+import { CartProvider } from './src/context/CartContext';
 
+
+import { BrowserRouter } from 'react-router-dom';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -13,6 +17,12 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <SiteContentProvider>
+        <CartProvider>
+          <App />
+        </CartProvider>
+      </SiteContentProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );    

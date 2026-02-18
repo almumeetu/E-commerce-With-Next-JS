@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronRight, Clock, MapPin, Star, ShoppingBag, Truck, Globe, Languages, Menu, X } from 'lucide-react';
 import ProductCard from './ProductCard';
 import TestimonialSlider from './TestimonialSlider';
-import QuickViewModal from './QuickViewModal';
-import { Product, Category } from '@/types';
-import { useCart } from '@/src/context/CartContext';
+import { QuickViewModal } from './QuickViewModal';
+import { Product, Category } from '../types'; // Removed @ alias
+import { useCart } from '../src/context/CartContext';
 
 interface HomeClientProps {
     initialProducts: Product[];
@@ -93,7 +93,7 @@ export default function HomeClient({ initialProducts, initialCategories }: HomeC
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16 md:h-20">
                         <div className="flex items-center gap-10">
-                            <Link href="/" className="flex items-center gap-3">
+                            <Link to="/" className="flex items-center gap-3">
                                 <div className="w-10 h-10 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-xl flex items-center justify-center shadow-lg transform transition hover:scale-105">
                                     <span className="text-white font-bold text-lg">FG</span>
                                 </div>
@@ -104,13 +104,13 @@ export default function HomeClient({ initialProducts, initialCategories }: HomeC
                             </Link>
 
                             <div className="hidden lg:flex items-center gap-8">
-                                <Link href="/shop" className="text-gray-600 hover:text-emerald-600 font-semibold transition-all">
+                                <Link to="/shop" className="text-gray-600 hover:text-emerald-600 font-semibold transition-all">
                                     {language === 'bn' ? 'শপ' : 'Shop'}
                                 </Link>
-                                <Link href="/about" className="text-gray-600 hover:text-emerald-600 font-semibold transition-all">
+                                <Link to="/about" className="text-gray-600 hover:text-emerald-600 font-semibold transition-all">
                                     {language === 'bn' ? 'সম্পর্কে' : 'About'}
                                 </Link>
-                                <Link href="/contact" className="text-gray-600 hover:text-emerald-600 font-semibold transition-all">
+                                <Link to="/contact" className="text-gray-600 hover:text-emerald-600 font-semibold transition-all">
                                     {language === 'bn' ? 'যোগাযোগ' : 'Contact'}
                                 </Link>
                             </div>
@@ -167,14 +167,14 @@ export default function HomeClient({ initialProducts, initialCategories }: HomeC
                             {/* CTA Buttons */}
                             <div className="flex flex-col sm:flex-row gap-5">
                                 <Link
-                                    href="/shop"
+                                    to="/shop"
                                     className="bg-gray-900 hover:bg-emerald-700 text-white px-10 py-5 rounded-2xl font-black transition-all duration-500 flex items-center justify-center gap-3 shadow-2xl hover:shadow-emerald-500/30 group"
                                 >
                                     <ShoppingBag className="w-5 h-5 group-hover:animate-bounce" />
                                     {t.visitShop}
                                 </Link>
                                 <Link
-                                    href="/about"
+                                    to="/about"
                                     className="bg-white hover:bg-gray-50 text-gray-900 px-10 py-5 rounded-2xl font-black transition-all duration-300 flex items-center justify-center gap-3 border-2 border-gray-100 group"
                                 >
                                     <Star className="w-5 h-5 text-emerald-600 group-hover:rotate-12 transition-transform" />
@@ -283,7 +283,7 @@ export default function HomeClient({ initialProducts, initialCategories }: HomeC
                         {initialCategories.map((category) => (
                             <Link
                                 key={category.id}
-                                href={`/shop?category=${category.name}`}
+                                to={`/shop?category=${category.name}`}
                                 className="bg-white rounded-xl p-6 text-center hover:shadow-lg transition-all duration-300 group"
                             >
                                 <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">
@@ -305,7 +305,7 @@ export default function HomeClient({ initialProducts, initialCategories }: HomeC
                             <p className="text-gray-600">{t.mostSold}</p>
                         </div>
                         <Link
-                            href="/shop"
+                            to="/shop"
                             className="text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-2 transition-colors duration-300"
                         >
                             {t.seeAll}
@@ -335,7 +335,7 @@ export default function HomeClient({ initialProducts, initialCategories }: HomeC
                             <p className="text-gray-600">{t.recentlyAdded}</p>
                         </div>
                         <Link
-                            href="/shop"
+                            to="/shop"
                             className="text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-2 transition-colors duration-300"
                         >
                             {t.seeAll}
@@ -370,7 +370,7 @@ export default function HomeClient({ initialProducts, initialCategories }: HomeC
                 />
             )}
 
-            <style jsx>{`
+            <style>{`
                 @keyframes scroll {
                     0% {
                         transform: translateX(0);

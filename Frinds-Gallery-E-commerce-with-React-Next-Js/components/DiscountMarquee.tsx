@@ -39,12 +39,12 @@ export const DiscountMarquee: React.FC = () => {
                 }
             `}</style>
 
-            <div className="py-5 sm:py-6 relative z-10 flex">
+            <div className="py-3 sm:py-3.5 relative z-10 flex">
                 <div className="marquee-content-new">
                     {[...discounts, ...discounts].map((discount, index) => (
                         <div key={index} className="marquee-item-new">
-                            <span className="text-2xl animate-bounce">{discount.icon}</span>
-                            <span className="text-brand-yellow-vibrant font-black text-lg sm:text-xl tracking-wide uppercase italic">
+                            <span className="text-xl">{discount.icon}</span>
+                            <span className="text-brand-yellow-vibrant font-black text-sm sm:text-base tracking-wide uppercase italic">
                                 {discount.text}
                             </span>
                         </div>

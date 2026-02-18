@@ -1,7 +1,4 @@
-'use server';
-
-import { createClient } from '@/lib/supabase/server';
-import { revalidatePath } from 'next/cache';
+import { supabase } from '../../../services/supabase';
 
 export type PlaceOrderResult =
     | { success: true; orderId: any; message?: string }
@@ -11,12 +8,12 @@ const isUUID = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}
 
 export async function placeOrder(formData: any, items: any[], total: number): Promise<PlaceOrderResult> {
     try {
-        const supabase = await createClient(true);
-
         // 1. Validate Product IDs (UUID check)
         const invalidIds = items.filter(item => !isUUID(item.id)).map(item => item.id);
         if (invalidIds.length > 0) {
             console.error('❌ Found invalid UUIDs in cart:', invalidIds);
+            // In a real scenario, we might want to allow non-UUIDs if we support legacy items, 
+            // but assuming strict UUIDs for Supabase:
             return {
                 success: false,
                 error: 'আপনার কার্টে পুরনো পণ্য রয়েছে যা এখন আর উপলব্ধ নেই। দয়া করে কার্ট রিভিউ করে ভুল পণ্যগুলো সরিয়ে দিন।',
@@ -94,7 +91,7 @@ export async function placeOrder(formData: any, items: any[], total: number): Pr
         }
 
         console.log('✅ Order successful:', order.id);
-        revalidatePath('/admin/orders');
+        // revalidatePath('/admin/orders'); // Client-side apps don't use this
         return { success: true, orderId: order.id };
 
     } catch (err: any) {
@@ -104,13 +101,12 @@ export async function placeOrder(formData: any, items: any[], total: number): Pr
 }
 
 export async function updateOrderStatus(orderId: string, status: string) {
-    const supabase = createClient();
-    const { error } = await (await supabase)
+    const { error } = await supabase
         .from('orders')
         .update({ status })
         .eq('id', orderId);
 
     if (error) return { success: false, error: error.message };
-    revalidatePath('/admin/orders');
+    // revalidatePath('/admin/orders');
     return { success: true };
 }

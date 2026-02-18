@@ -216,41 +216,91 @@ export const databaseService = {
     },
 
     async getCustomers() {
-        // Fetch specific columns to optimize
+        try {
+            // 1. Fetch all profiles
+            const { data: profiles, error: profilesError } = await supabase
+                .from('profiles')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (profilesError) throw profilesError;
+
+            // 2. Fetch all orders (lightweight select)
+            const { data: orders, error: ordersError } = await supabase
+                .from('orders')
+                .select('customer_id, total_price, created_at, phone');
+
+            if (ordersError) throw ordersError;
+
+            // 3. Aggregate order stats per customer
+            const orderStats = new Map();
+            (orders || []).forEach(order => {
+                // Try to match by customer_id first, then phone as fallback
+                const id = order.customer_id; // Assuming orders have customer_id linked to auth.users
+                if (id) {
+                    if (!orderStats.has(id)) {
+                        orderStats.set(id, { count: 0, spent: 0, lastOrder: null });
+                    }
+                    const stat = orderStats.get(id);
+                    stat.count += 1;
+                    stat.spent += Number(order.total_price || 0);
+                    if (!stat.lastOrder || new Date(order.created_at) > new Date(stat.lastOrder)) {
+                        stat.lastOrder = order.created_at;
+                    }
+                }
+            });
+
+            // 4. Merge profiles with stats
+            return (profiles || []).map(profile => {
+                const stat = orderStats.get(profile.id) || { count: 0, spent: 0, lastOrder: null };
+                return {
+                    id: profile.id,
+                    name: profile.name || 'Unknown',
+                    email: profile.email || '',
+                    phone: profile.phone || '',
+                    totalOrders: stat.count,
+                    totalSpent: stat.spent,
+                    joinDate: profile.created_at,
+                    orderIds: [], // Populating this might be expensive if not needed
+                };
+            });
+
+        } catch (error) {
+            console.error('Error fetching customers (real):', error);
+            // Fallback to order-derived customers if profiles table doesn't exist yet/fails
+            return this.getCustomersFromOrders();
+        }
+    },
+
+    // Fallback method (renamed from original getCustomers)
+    async getCustomersFromOrders() {
         const { data: orders, error } = await supabase
             .from('orders')
             .select('customer_name, phone, address, total_price, created_at')
             .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching customers (via orders):', error);
-            // Return empty to avoid crash
-            return [];
-        }
+        if (error) return [];
 
         const customersMap = new Map();
 
         (orders || []).forEach(order => {
-            // Normalize phone/name as key
             const key = order.phone || order.customer_name || 'unknown';
-
             if (!customersMap.has(key)) {
                 customersMap.set(key, {
+                    id: 'guest-' + key, // Temporary ID
                     name: order.customer_name,
                     phone: order.phone,
+                    email: '', // No email in this fallback
                     address: order.address,
                     totalSpent: 0,
-                    orderCount: 0,
-                    lastOrder: order.created_at
+                    totalOrders: 0,
+                    joinDate: order.created_at,
+                    orderIds: []
                 });
             }
-
             const customer = customersMap.get(key);
             customer.totalSpent += Number(order.total_price || 0);
-            customer.orderCount += 1;
-            if (new Date(order.created_at) > new Date(customer.lastOrder)) {
-                customer.lastOrder = order.created_at;
-            }
+            customer.totalOrders += 1;
         });
 
         return Array.from(customersMap.values());

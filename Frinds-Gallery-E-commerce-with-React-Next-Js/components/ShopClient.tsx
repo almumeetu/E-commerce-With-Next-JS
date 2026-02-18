@@ -1,16 +1,16 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Product, Category } from '@/types';
+import { Product, Category } from '../types';
 import ProductCard from './ProductCard';
-import { useCart } from '@/src/context/CartContext';
+import { useCart } from '../src/context/CartContext';
 import { Search, Filter, X } from 'lucide-react';
 
 export default function ShopClient({ initialProducts, categories, initialCategory, initialSearch }: { initialProducts: Product[], categories: Category[], initialCategory?: string, initialSearch?: string }) {
     const { addToCart, wishlist, toggleWishlist } = useCart();
     const [searchTerm, setSearchTerm] = useState(initialSearch || '');
     const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
-    const [priceRange, setPriceRange] = useState<{min: number, max: number}>({ min: 0, max: 10000 });
+    const [priceRange, setPriceRange] = useState<{ min: number, max: number }>({ min: 0, max: 10000 });
     const [showFilters, setShowFilters] = useState(false);
 
     // Calculate max price from products for default range logic if needed, 
@@ -38,8 +38,8 @@ export default function ShopClient({ initialProducts, categories, initialCategor
                         <h1 className="text-3xl md:text-4xl font-black text-indigo-950 mb-2">আমাদের সংগ্রহশালা</h1>
                         <p className="text-stone-500">সেরা মানের পণ্য, আপনার জন্য</p>
                     </div>
-                    
-                    <button 
+
+                    <button
                         className="lg:hidden flex items-center justify-center gap-2 bg-white px-4 py-3 rounded-xl border border-stone-200 shadow-sm font-bold text-stone-700"
                         onClick={() => setShowFilters(!showFilters)}
                     >
@@ -48,7 +48,7 @@ export default function ShopClient({ initialProducts, categories, initialCategor
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-8">
-                    
+
                     {/* Sidebar Filters */}
                     <div className={`lg:w-1/4 ${showFilters ? 'block' : 'hidden lg:block'}`}>
                         <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm sticky top-24">
@@ -80,11 +80,10 @@ export default function ShopClient({ initialProducts, categories, initialCategor
                                 <div className="space-y-1">
                                     <button
                                         onClick={() => setSelectedCategory('all')}
-                                        className={`w-full text-left px-4 py-3 rounded-xl transition-all flex items-center gap-3 ${
-                                            selectedCategory === 'all' 
-                                            ? 'bg-indigo-50 text-indigo-800 font-bold border border-indigo-100' 
-                                            : 'text-stone-600 hover:bg-stone-50 border border-transparent'
-                                        }`}
+                                        className={`w-full text-left px-4 py-3 rounded-xl transition-all flex items-center gap-3 ${selectedCategory === 'all'
+                                                ? 'bg-indigo-50 text-indigo-800 font-bold border border-indigo-100'
+                                                : 'text-stone-600 hover:bg-stone-50 border border-transparent'
+                                            }`}
                                     >
                                         <span className="text-lg">🛍️</span> সব পণ্য
                                     </button>
@@ -92,11 +91,10 @@ export default function ShopClient({ initialProducts, categories, initialCategor
                                         <button
                                             key={cat.id}
                                             onClick={() => setSelectedCategory(cat.id)}
-                                            className={`w-full text-left px-4 py-3 rounded-xl transition-all flex items-center gap-3 ${
-                                                selectedCategory === cat.id 
-                                                ? 'bg-indigo-50 text-indigo-800 font-bold border border-indigo-100' 
-                                                : 'text-stone-600 hover:bg-stone-50 border border-transparent'
-                                            }`}
+                                            className={`w-full text-left px-4 py-3 rounded-xl transition-all flex items-center gap-3 ${selectedCategory === cat.id
+                                                    ? 'bg-indigo-50 text-indigo-800 font-bold border border-indigo-100'
+                                                    : 'text-stone-600 hover:bg-stone-50 border border-transparent'
+                                                }`}
                                         >
                                             <span className="text-lg">{cat.icon}</span> {cat.name}
                                         </button>
@@ -112,23 +110,23 @@ export default function ShopClient({ initialProducts, categories, initialCategor
                                         ৳{priceRange.min} - ৳{priceRange.max}
                                     </span>
                                 </div>
-                                
-                                <input 
-                                    type="range" 
-                                    min="0" 
-                                    max="10000" 
+
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="10000"
                                     step="100"
                                     value={priceRange.max}
-                                    onChange={(e) => setPriceRange({...priceRange, max: Number(e.target.value)})}
+                                    onChange={(e) => setPriceRange({ ...priceRange, max: Number(e.target.value) })}
                                     className="w-full accent-indigo-600 h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer"
                                 />
                                 <div className="flex items-center gap-2 mt-4">
                                     <div className="relative w-full">
                                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xs">৳</span>
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={priceRange.min}
-                                            onChange={(e) => setPriceRange({...priceRange, min: Number(e.target.value)})}
+                                            onChange={(e) => setPriceRange({ ...priceRange, min: Number(e.target.value) })}
                                             className="w-full pl-6 pr-2 py-2 rounded-lg border border-stone-200 bg-stone-50 text-sm focus:outline-none focus:border-indigo-500"
                                             placeholder="Min"
                                         />
@@ -136,10 +134,10 @@ export default function ShopClient({ initialProducts, categories, initialCategor
                                     <span className="text-stone-400">-</span>
                                     <div className="relative w-full">
                                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xs">৳</span>
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={priceRange.max}
-                                            onChange={(e) => setPriceRange({...priceRange, max: Number(e.target.value)})}
+                                            onChange={(e) => setPriceRange({ ...priceRange, max: Number(e.target.value) })}
                                             className="w-full pl-6 pr-2 py-2 rounded-lg border border-stone-200 bg-stone-50 text-sm focus:outline-none focus:border-indigo-500"
                                             placeholder="Max"
                                         />
@@ -170,7 +168,7 @@ export default function ShopClient({ initialProducts, categories, initialCategor
                                 </div>
                                 <h3 className="text-xl font-bold text-stone-800 mb-2">দুঃখিত, কোনো পণ্য পাওয়া যায়নি</h3>
                                 <p className="text-stone-500">আপনার ফিল্টার পরিবর্তন করে আবার চেষ্টা করুন</p>
-                                <button 
+                                <button
                                     onClick={() => {
                                         setSearchTerm('');
                                         setSelectedCategory('all');

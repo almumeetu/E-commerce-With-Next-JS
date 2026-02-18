@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect, Suspense, lazy } from 'react';
+import { Routes, Route, useNavigate, useLocation, useParams, Navigate } from 'react-router-dom';
 import { Header } from './components/Header';
 import { HomePage } from './pages/HomePage';
 import { ShopPage } from './pages/ShopPage';
@@ -25,7 +27,6 @@ const AuthPage = lazy(() => import('./pages/AuthPage').then(m => ({ default: m.A
 const ReturnsPage = lazy(() => import('./pages/ReturnsPage').then(m => ({ default: m.ReturnsPage })));
 const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
 
-
 export type Page = 'home' | 'shop' | 'productDetail' | 'checkout' | 'orderSuccess' | 'wishlist' | 'admin' | 'utility' | 'hotDeals' | 'about' | 'contact' | 'account' | 'returns' | 'terms';
 
 const BackToTop: React.FC = () => {
@@ -45,68 +46,75 @@ const BackToTop: React.FC = () => {
   );
 };
 
+// Wrapper for ProductDetailPage to fetch product from ID
+const ProductPageWrapper: React.FC<{
+  products: Product[];
+  categories: Category[];
+  addToCart: (productId: string, quantity: number) => void;
+  buyNow: (productId: string, quantity: number) => void;
+  wishlist: string[];
+  toggleWishlist: (productId: string) => void;
+  onProductSelect: (product: Product) => void;
+  onQuickView: (product: Product) => void;
+  navigateTo: (page: Page) => void;
+  navigateToShop: (categoryId: string) => void;
+}> = ({ products, ...props }) => {
+  const { id } = useParams<{ id: string }>();
+  const product = products.find(p => p.id.toString() === id);
+
+  if (!product) {
+    // Show a loading state or "not found" state
+    return (
+      <div className="min-h-screen bg-stone-50 pt-24 pb-20 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-800">পণ্যটি পাওয়া যায়নি</h2>
+          <button onClick={() => props.navigateTo('shop')} className="mt-4 text-brand-green underline">দোকানে ফিরে যান</button>
+        </div>
+      </div>
+    );
+  }
+
+  return <ProductDetailPage product={product} allProducts={products} {...props} />;
+};
+
 const App: React.FC = () => {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check URL pathname for admin
-  const path = window.location.pathname;
-  const initialPage = path === '/admin' ? 'admin' : 'home';
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const [currentPage, setCurrentPage] = useState<Page>(initialPage);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  // Temporary state for maintaining selection compatibility
+  // const [selectedProduct, setSelectedProduct] = useState<Product | null>(null); // Replaced by URL param
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [wishlist, setWishlist] = useState<string[]>([]); // Array of product IDs
+  const [wishlist, setWishlist] = useState<string[]>([]);
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
-  const [initialCategory, setInitialCategory] = useState<string>('all');
+  const [initialCategory, setInitialCategory] = useState<string>('all'); // Still used for ShopPage initial state prop if needed
   const [currentUser, setCurrentUser] = useState<Customer | null>(null);
-
-  useEffect(() => {
-    // Handle browser back/forward buttons
-    const handlePopState = () => {
-      const path = window.location.pathname;
-      if (path === '/admin') {
-        setCurrentPage('admin');
-      } else {
-        setCurrentPage('home');
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
 
   useEffect(() => {
     const loadInitialData = async () => {
       try {
         if (!api.isSupabaseConfigured()) {
-          console.error("🔴 Supabase is NOT configured. Environment variables are missing.");
-          alert("DATABASE CONNECTION ERROR:\n\nPlease set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your Vercel project settings or .env file.\n\nThe app is running in offline mode.");
+          console.error("🔴 Supabase is NOT configured.");
         }
         setIsLoading(true);
 
-        // Fetch data independently so one failure doesn't break everything
         const fetchProducts = api.getProducts().catch(e => { console.error('Products failed:', e); return []; });
         const fetchCategories = api.getCategories().catch(e => { console.error('Categories failed:', e); return []; });
-        const fetchOrders = api.getOrders().catch(e => { console.error('Orders failed:', e); return []; });
-        const fetchCustomers = api.getCustomers().catch(e => { console.error('Customers failed:', e); return []; });
 
-        const [productsData, categoriesData, ordersData, customersData] = await Promise.all([
+        const [productsData, categoriesData] = await Promise.all([
           fetchProducts,
           fetchCategories,
-          fetchOrders,
-          fetchCustomers,
         ]);
 
         setProducts(productsData || []);
         setCategories(categoriesData || []);
-        setOrders(ordersData || []);
-        setCustomers(customersData || []);
+
       } catch (error) {
         console.error("Failed to load initial data", error);
       } finally {
@@ -116,23 +124,44 @@ const App: React.FC = () => {
     loadInitialData();
   }, []);
 
-  const navigateTo = (page: Page) => {
-    setCurrentPage(page);
-    window.scrollTo(0, 0);
+  useEffect(() => {
+    if (currentUser) {
+      api.getOrders(currentUser.id)
+        .then(userOrders => setOrders(userOrders))
+        .catch(err => console.error("Failed to fetch user orders", err));
+    } else {
+      setOrders([]);
+    }
+  }, [currentUser]);
 
-    // Update URL without reloading
-    const newPath = page === 'home' ? '/' : `/${page}`;
-    window.history.pushState(null, '', newPath);
+  const navigateTo = (page: Page) => {
+    window.scrollTo(0, 0);
+    switch (page) {
+      case 'home': navigate('/'); break;
+      case 'shop': navigate('/shop'); break;
+      case 'checkout': navigate('/checkout'); break;
+      case 'orderSuccess': navigate('/order-success'); break;
+      case 'wishlist': navigate('/wishlist'); break;
+      case 'admin': navigate('/admin'); break;
+      case 'utility': navigate('/utility'); break;
+      case 'hotDeals': navigate('/hot-deals'); break;
+      case 'about': navigate('/about'); break;
+      case 'contact': navigate('/contact'); break;
+      case 'account': navigate('/account'); break;
+      case 'returns': navigate('/returns'); break;
+      case 'terms': navigate('/terms'); break;
+      default: navigate('/');
+    }
   };
 
   const navigateToShop = (categoryId: string = 'all') => {
-    setInitialCategory(categoryId);
-    navigateTo('shop');
+    setInitialCategory(categoryId); // Keep state sync if ShopPage uses it
+    navigate(`/shop?category=${encodeURIComponent(categoryId)}`);
   };
 
   const handleProductSelect = (product: Product) => {
-    setSelectedProduct(product);
-    navigateTo('productDetail');
+    // setSelectedProduct(product);
+    navigate(`/product/${product.id}`);
   };
 
   const handleQuickView = (product: Product) => {
@@ -189,7 +218,6 @@ const App: React.FC = () => {
         totalOrders: currentUser.totalOrders + 1,
         totalSpent: currentUser.totalSpent + newOrder.totalAmount
       };
-      setCustomers(prev => prev.map(c => c.id === currentUser.id ? updatedUser : c));
       setCurrentUser(updatedUser);
     }
 
@@ -199,7 +227,7 @@ const App: React.FC = () => {
       totalAmount: orderData.totalAmount,
     });
     clearCart();
-    navigateTo('orderSuccess');
+    navigate('/order-success');
   };
 
   const toggleWishlist = (productId: string) => {
@@ -211,74 +239,35 @@ const App: React.FC = () => {
   };
 
   const buyNow = (productId: string, quantity: number) => {
-    // Clear cart and add only the buy now item for a streamlined checkout
     setCart([{ productId, quantity }]);
-    navigateTo('checkout');
+    navigate('/checkout');
   };
 
-  // Auth Handlers
   const handleLogin = async (email: string, password: string): Promise<boolean> => {
     const customer = await api.login(email, password);
     if (customer) {
       setCurrentUser(customer);
-      navigateTo('account');
+      navigate('/account');
       return true;
     }
     return false;
   };
 
   const handleRegister = async (newCustomerData: Omit<Customer, 'id' | 'totalOrders' | 'totalSpent' | 'joinDate' | 'orderIds'>): Promise<boolean> => {
-    const existingCustomer = customers.some(c => c.email.toLowerCase() === newCustomerData.email.toLowerCase());
-    if (existingCustomer) {
-      return false; // Email already exists
+    try {
+      const newCustomer = await api.register(newCustomerData);
+      setCurrentUser(newCustomer);
+      navigate('/account');
+      return true;
+    } catch (error) {
+      console.error("Registration failed:", error);
+      return false;
     }
-    const newCustomer = await api.register(newCustomerData);
-    setCustomers(prev => [...prev, newCustomer]);
-    setCurrentUser(newCustomer);
-    navigateTo('account');
-    return true;
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
-    navigateTo('home');
-  };
-
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'shop':
-        return <ShopPage products={products} categories={categories} initialCategory={initialCategory} onProductSelect={handleProductSelect} addToCart={addToCart} buyNow={buyNow} wishlist={wishlist} toggleWishlist={toggleWishlist} onQuickView={handleQuickView} navigateTo={navigateTo} navigateToShop={navigateToShop} />;
-      case 'productDetail':
-        return selectedProduct ? <ProductDetailPage product={selectedProduct} allProducts={products} categories={categories} onProductSelect={handleProductSelect} addToCart={addToCart} buyNow={buyNow} wishlist={wishlist} toggleWishlist={toggleWishlist} onQuickView={handleQuickView} navigateTo={navigateTo} navigateToShop={navigateToShop} /> : <HomePage products={products} categories={categories} navigateTo={navigateTo} navigateToShop={navigateToShop} onProductSelect={handleProductSelect} wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart} buyNow={buyNow} onQuickView={handleQuickView} />;
-      case 'checkout':
-        return <CheckoutPage cart={cart} products={products} updateCartQuantity={updateCartQuantity} removeFromCart={removeFromCart} onPlaceOrder={handlePlaceOrder} navigateTo={navigateTo} currentUser={currentUser} />;
-      case 'orderSuccess':
-        return <OrderSuccessPage orderDetails={orderDetails} navigateTo={navigateTo} />;
-      case 'wishlist':
-        return <WishlistPage products={products} wishlistProductIds={wishlist} onProductSelect={handleProductSelect} addToCart={addToCart} buyNow={buyNow} toggleWishlist={toggleWishlist} navigateTo={navigateTo} onQuickView={handleQuickView} />;
-      case 'admin':
-        return <AdminDashboardPage navigateTo={navigateTo} />;
-      case 'utility':
-        return <UtilityPage navigateTo={navigateTo} />;
-      case 'hotDeals':
-        return <HotDealsPage products={products} onProductSelect={handleProductSelect} addToCart={addToCart} buyNow={buyNow} wishlist={wishlist} toggleWishlist={toggleWishlist} onQuickView={handleQuickView} navigateTo={navigateTo} />;
-      case 'about':
-        return <AboutUsPage navigateTo={navigateTo} />;
-      case 'contact':
-        return <ContactPage navigateTo={navigateTo} />;
-      case 'account':
-        return currentUser
-          ? <AccountPage navigateTo={navigateTo} currentUser={currentUser} orders={orders.filter(o => currentUser.orderIds.includes(o.id))} onLogout={handleLogout} />
-          : <AuthPage navigateTo={navigateTo} onLogin={handleLogin} onRegister={handleRegister} />;
-      case 'returns':
-        return <ReturnsPage navigateTo={navigateTo} />;
-      case 'terms':
-        return <TermsPage navigateTo={navigateTo} />;
-      case 'home':
-      default:
-        return <HomePage products={products} categories={categories} navigateTo={navigateTo} navigateToShop={navigateToShop} onProductSelect={handleProductSelect} wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart} buyNow={buyNow} onQuickView={handleQuickView} />;
-    }
+    navigate('/');
   };
 
   if (isLoading) {
@@ -295,30 +284,54 @@ const App: React.FC = () => {
     );
   }
 
-  // If on admin page, don't show header/footer
-  if (currentPage === 'admin') {
-    return (
-      <Suspense fallback={<div className="min-h-screen bg-brand-green-deep flex items-center justify-center"><div className="loader" /></div>}>
-        {renderPage()}
-      </Suspense>
-    );
-  }
+  // Determine if we are on admin page to hide header/footer
+  const isAdmin = location.pathname.startsWith('/admin');
 
   return (
     <div className="min-h-screen bg-brand-cream text-brand-dark flex flex-col">
-      <Header navigateTo={navigateTo} navigateToShop={navigateToShop} cartItemCount={cart.reduce((sum, item) => sum + item.quantity, 0)} wishlistItemCount={wishlist.length} currentUser={currentUser} onLogout={handleLogout} categories={categories} />
+      {!isAdmin && (
+        <Header
+          navigateTo={navigateTo}
+          navigateToShop={navigateToShop}
+          cartItemCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
+          wishlistItemCount={wishlist.length}
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          categories={categories}
+        />
+      )}
+
       <main className="flex-grow w-full pb-20 lg:pb-0">
         <Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center"><div className="loader" /></div>}>
-          {renderPage()}
+          <Routes>
+            <Route path="/" element={<HomePage products={products} categories={categories} navigateTo={navigateTo} navigateToShop={navigateToShop} onProductSelect={handleProductSelect} wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart} buyNow={buyNow} onQuickView={handleQuickView} />} />
+            <Route path="/shop" element={<ShopPage products={products} categories={categories} initialCategory={initialCategory} onProductSelect={handleProductSelect} addToCart={addToCart} buyNow={buyNow} wishlist={wishlist} toggleWishlist={toggleWishlist} onQuickView={handleQuickView} navigateTo={navigateTo} navigateToShop={navigateToShop} />} />
+            <Route path="/product/:id" element={<ProductPageWrapper products={products} categories={categories} addToCart={addToCart} buyNow={buyNow} wishlist={wishlist} toggleWishlist={toggleWishlist} onProductSelect={handleProductSelect} onQuickView={handleQuickView} navigateTo={navigateTo} navigateToShop={navigateToShop} />} />
+            <Route path="/checkout" element={<CheckoutPage cart={cart} products={products} updateCartQuantity={updateCartQuantity} removeFromCart={removeFromCart} onPlaceOrder={handlePlaceOrder} navigateTo={navigateTo} currentUser={currentUser} />} />
+            <Route path="/order-success" element={<OrderSuccessPage orderDetails={orderDetails} navigateTo={navigateTo} />} />
+            <Route path="/wishlist" element={<WishlistPage products={products} wishlistProductIds={wishlist} onProductSelect={handleProductSelect} addToCart={addToCart} buyNow={buyNow} toggleWishlist={toggleWishlist} navigateTo={navigateTo} onQuickView={handleQuickView} />} />
+            <Route path="/admin" element={<AdminDashboardPage navigateTo={navigateTo} />} />
+            <Route path="/utility" element={<UtilityPage navigateTo={navigateTo} />} />
+            <Route path="/hot-deals" element={<HotDealsPage products={products} onProductSelect={handleProductSelect} addToCart={addToCart} buyNow={buyNow} wishlist={wishlist} toggleWishlist={toggleWishlist} onQuickView={handleQuickView} navigateTo={navigateTo} />} />
+            <Route path="/about" element={<AboutUsPage navigateTo={navigateTo} />} />
+            <Route path="/contact" element={<ContactPage navigateTo={navigateTo} />} />
+            <Route path="/account" element={currentUser ? <AccountPage navigateTo={navigateTo} currentUser={currentUser} orders={orders.filter(o => currentUser.orderIds.includes(o.id))} onLogout={handleLogout} /> : <AuthPage navigateTo={navigateTo} onLogin={handleLogin} onRegister={handleRegister} />} />
+            <Route path="/returns" element={<ReturnsPage navigateTo={navigateTo} />} />
+            <Route path="/terms" element={<TermsPage navigateTo={navigateTo} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </Suspense>
       </main>
-      <Footer navigateTo={navigateTo} navigateToShop={navigateToShop} />
+
+      {!isAdmin && <Footer navigateTo={navigateTo} navigateToShop={navigateToShop} categories={categories} />}
+
       <FloatingCart cart={cart} products={products} navigateTo={navigateTo} />
       <FloatingSocials />
-      <MobileBottomNav currentPage={currentPage} navigateTo={navigateTo} />
+      {/* MobileBottomNav normally needs currentPage prop. We can derive it roughly or update component to use useLocation. Passing generic 'home' or making it optional if it just uses navigateTo */}
+      <MobileBottomNav currentPage={location.pathname === '/' ? 'home' : location.pathname.substring(1) as Page} navigateTo={navigateTo} />
       <BackToTop />
-      {quickViewProduct && (
 
+      {quickViewProduct && (
         <QuickViewModal
           product={quickViewProduct}
           onClose={closeQuickView}

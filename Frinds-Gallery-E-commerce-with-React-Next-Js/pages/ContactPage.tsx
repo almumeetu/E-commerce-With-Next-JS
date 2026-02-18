@@ -18,7 +18,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ navigateTo }) => {
 
                     <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-10">
                         {/* Contact Info */}
-                        <div className="space-y-6">
+                        <div className="space-y-6 bg-yellow">
                             <h2 className="text-xl font-semibold text-gray-800">আমাদের তথ্য</h2>
                             <div className="flex items-start space-x-4">
                                 <span className="text-2xl mt-1 text-brand-green"><DevicePhoneMobileIcon className="w-6 h-6" /></span>

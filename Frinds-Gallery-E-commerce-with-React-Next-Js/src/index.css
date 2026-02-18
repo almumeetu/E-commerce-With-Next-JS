@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,79 +8,125 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   font-family: 'Hind Siliguri', sans-serif;
-  @apply text-slate-800 bg-brand-cream;
+  @apply text-slate-800 bg-slate-50;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior: none;
+  overscroll-behavior-y: none;
 }
 
-.text-shadow-premium {
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* Dual Font System for Premium Look */
+.font-english {
+  font-family: 'Poppins', sans-serif;
 }
 
-.premium-card-shadow {
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 5px 15px -8px rgba(0, 0, 0, 0.05);
+/* Apply Poppins to numbers and prices for modern look */
+.price-text,
+.number-text {
+  font-family: 'Poppins', sans-serif;
 }
 
-.premium-hover {
-  @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+/* ==========================
+   THEMEFOREST STANDARD TYPOGRAPHY
+   ========================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Hind Siliguri', sans-serif;
+  @apply text-brand-green-deep;
 }
 
-/* Custom Scrollbar for Mobile Menu */
-.custom-scrollbar::-webkit-scrollbar {
+h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+/* ==========================
+   PREMIUM GLASS & SHADOWS
+   ========================== */
+
+.glass-nav {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.shadow-soft {
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-card {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-card-hover {
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.1), 0 10px 30px -10px rgba(16, 185, 129, 0.15);
+}
+
+/* ==========================
+   CUSTOM SCROLLBAR (Minimalist)
+   ========================== */
+
+::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(16, 185, 129, 0.3);
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
   border-radius: 10px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.5);
+::-webkit-scrollbar-thumb:hover {
+  background: #fbbf24;
+  /* Brand Yellow */
 }
 
-/* Firefox scrollbar */
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(16, 185, 129, 0.3) transparent;
+/* ==========================
+   SELECTION COLORS
+   ========================== */
+::selection {
+  @apply bg-brand-green-deep text-brand-yellow;
 }
 
-/* Smooth touch scrolling */
-.custom-scrollbar {
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Explicit Brand Gradient for guaranteed visibility */
-.bg-brand-gradient {
-  background: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #065f46 100%) !important;
-}
-
-/* Global Mobile Responsiveness Improvements */
-html {
-  scroll-behavior: smooth;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Fluid Typography */
-@media (max-width: 640px) {
-  h1 { @apply text-3xl sm:text-4xl; }
-  h2 { @apply text-2xl sm:text-3xl; }
-  p { @apply text-sm sm:text-base; }
-}
+/* ==========================
+   MOBILE OPTIMIZATIONS
+   ========================== */
 
 /* Better Input Fields */
-input, select, textarea {
+input,
+select,
+textarea {
   @apply appearance-none outline-none;
-  font-size: 16px !important;
+  font-family: 'Hind Siliguri', sans-serif;
 }
 
 /* Ensure icons are aligned */
@@ -88,38 +134,41 @@ svg {
   @apply inline-block align-middle;
 }
 
-/* Better Active States for Mobile */
-@media (max-width: 1024px) {
-  button:active, .active-scale:active {
-    @apply scale-95;
-    transition: transform 0.1s ease-out;
-  }
+/* Active State Animation */
+.active-press {
+  @apply transition-transform duration-100 active:scale-95;
 }
 
-/* Premium Card Scaling */
-.premium-card {
-  @apply transition-all duration-300 active:scale-[0.98] sm:hover:-translate-y-2 sm:hover:shadow-2xl;
-}
-
-/* Safe Area Insets for modern devices */
-.safe-padding-bottom {
+/* Safe Area Insets */
+.safe-pb {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-.safe-margin-bottom {
+.safe-mb {
   margin-bottom: env(safe-area-inset-bottom);
 }
 
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
+/* Gradient Text */
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-green-deep to-brand-green;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+/* Smooth Image Loading */
+img {
+  @apply transition-opacity duration-300;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #10b981;
-  border-radius: 10px;
+/* Container Adjustments */
+.container-custom {
+  @apply w-full mx-auto px-4 sm:px-6 lg:px-8 max-w-[1400px];
+}
+
+.responsive-padding-x {
+  padding-left: clamp(1rem, 5vw, 2rem);
+  padding-right: clamp(1rem, 5vw, 2rem);
+}
+
+/* Grid System Adjustments */
+.grid-products {
+  @apply grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6;
 }

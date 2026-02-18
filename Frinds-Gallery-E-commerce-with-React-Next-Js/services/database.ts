@@ -1,6 +1,6 @@
 import { PRODUCTS, CATEGORIES } from '../constants';
 import { Product, Category } from '../types';
-import { supabase } from '../services/supabase';
+import { supabase } from './supabase';
 
 export interface OrderData {
     customer_name: string;
@@ -36,11 +36,13 @@ export const databaseService = {
                     id: p.id,
                     name: p.name,
                     category: p.category,
-                    price: parseFloat(p.price),
-                    image: p.image_url || p.image || '',
+                    price: parseFloat(p.price || '0'),
+                    imageUrl: p.image_url || p.image || '',
                     description: p.description || '',
-                    isPopular: p.isPopular || false,
-                    isNew: p.isNew || false,
+                    sku: p.sku || `SKU-${p.id}`,
+                    stock: p.stock || 10,
+                    rating: p.rating || 5, // Default if missing
+                    reviewCount: p.review_count || 0,
                 })) as Product[];
             }
 
@@ -50,7 +52,7 @@ export const databaseService = {
         }
     },
 
-    async getProductById(id: number) {
+    async getProductById(id: string | number) {
         try {
             const { data, error } = await supabase
                 .from('products')
@@ -68,14 +70,17 @@ export const databaseService = {
                 id: data.id,
                 name: data.name,
                 category: data.category,
-                price: parseFloat(data.price),
-                image: data.image_url || data.image || '',
+                price: parseFloat(data.price || '0'),
+                imageUrl: data.image_url || data.image || '',
                 description: data.description || '',
-                isPopular: data.isPopular || false,
-                isNew: data.isNew || false,
+                sku: data.sku || `SKU-${data.id}`,
+                stock: data.stock || 10,
+                rating: data.rating || 5,
+                reviewCount: data.review_count || 0,
             } as Product;
         } catch (error) {
-            const product = PRODUCTS.find(p => p.id === id);
+            // @ts-ignore
+            const product = PRODUCTS.find(p => String(p.id) === String(id));
             if (!product) throw new Error('Product not found');
             return product as Product;
         }

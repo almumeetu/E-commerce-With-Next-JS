@@ -1,5 +1,5 @@
 import React from 'react';
-import { MobileProductCard } from './MobileProductCard';
+import ProductCard from './ProductCard';
 import type { Product } from '../types';
 
 interface ProductsGridProps {
@@ -14,9 +14,9 @@ interface ProductsGridProps {
 
 export const ProductsGrid: React.FC<ProductsGridProps> = ({ products, onProductSelect, addToCart, buyNow, wishlist, toggleWishlist, onQuickView }) => {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
             {products.map(product => (
-                <MobileProductCard
+                <ProductCard
                     key={product.id}
                     product={product}
                     onProductSelect={onProductSelect}

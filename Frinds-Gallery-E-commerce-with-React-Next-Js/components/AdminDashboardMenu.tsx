@@ -1,5 +1,5 @@
 import React from 'react';
-import { BiGridAlt, BiCart, BiPackage, BiGroup, BiCog, BiLogOut, BiMoon, BiBox, BiCalculator, BiTag } from 'react-icons/bi';
+import { BiGridAlt, BiCart, BiPackage, BiGroup, BiCog, BiLogOut, BiMoon, BiBox, BiCalculator, BiTag, BiWindow } from 'react-icons/bi';
 
 interface AdminDashboardMenuProps {
     activeView: string;
@@ -11,7 +11,8 @@ export const AdminDashboardMenu: React.FC<AdminDashboardMenuProps> = ({ activeVi
         { id: 'dashboard', label: 'ওভারভিউ', icon: BiGridAlt },
         { id: 'orders', label: 'অর্ডারসমূহ', icon: BiCart },
         { id: 'products', label: 'পণ্য ম্যানেজমেন্ট', icon: BiPackage },
-        { id: 'categories', label: 'ক্যাটাগরি', icon: BiTag }, // New Category Menu
+        { id: 'categories', label: 'ক্যাটাগরি', icon: BiTag },
+        { id: 'content-manager', label: 'কনটেন্ট ম্যানেজমেন্ট', icon: BiWindow }, // New
         { id: 'customers', label: 'গ্রাহকবৃন্দ', icon: BiGroup },
         { id: 'inventory', label: 'ইনভেন্টরি', icon: BiBox },
         { id: 'pos', label: 'POS সিস্টেম', icon: BiCalculator },

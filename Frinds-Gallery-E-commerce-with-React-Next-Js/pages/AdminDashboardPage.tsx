@@ -5,6 +5,7 @@ import { AdminDashboardMenu } from '../components/AdminDashboardMenu';
 import AdminOrders from '../components/AdminOrders';
 import AdminUsers from '../components/AdminUsers';
 import { SettingsManagement } from '../components/SettingsManagement';
+import { AdminContentManager } from '../components/AdminContentManager';
 import AdminRoute from '../components/AdminRoute';
 import AdminProducts from '../components/AdminProducts';
 import AdminCategories from '../components/AdminCategories';
@@ -35,6 +36,8 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ navigate
                 return <AdminOrders />;
             case 'customers':
                 return <AdminUsers />;
+            case 'content-manager':
+                return <AdminContentManager />;
             case 'settings':
                 return <SettingsManagement />;
             case 'dashboard':

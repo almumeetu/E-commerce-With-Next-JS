@@ -3,7 +3,7 @@
 import React from 'react';
 import { X, ShoppingBag, Trash2, Plus, Minus } from 'lucide-react';
 import { CartItem } from '../types';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 
 interface MiniCartProps {
   isOpen: boolean;
@@ -59,7 +59,7 @@ const MiniCart: React.FC<MiniCartProps> = ({ isOpen, onClose, cart, onUpdateQuan
               <h4 className="text-lg font-bold text-stone-800 mb-2">আপনার ব্যাগ খালি</h4>
               <p className="text-stone-500 text-sm mb-6">কিছু পণ্য যোগ করুন এবং কেনাকাটা শুরু করুন!</p>
               <Link
-                href="/shop"
+                to="/shop"
                 onClick={onClose}
                 className="bg-indigo-700 text-white px-6 py-2.5 rounded-full font-medium hover:bg-indigo-800 transition"
               >
@@ -74,9 +74,9 @@ const MiniCart: React.FC<MiniCartProps> = ({ isOpen, onClose, cart, onUpdateQuan
                   className="flex gap-3 bg-stone-50 p-3 rounded-xl border border-stone-100 hover:shadow-md transition"
                 >
                   {/* Product Image */}
-                  <Link href={`/product/${item.id}`} onClick={onClose}>
+                  <Link to={`/product/${item.id}`} onClick={onClose}>
                     <img
-                      src={item.image}
+                      src={item.imageUrl || item.image}
                       alt={item.name}
                       className="w-20 h-20 object-cover rounded-lg bg-white"
                     />
@@ -85,7 +85,7 @@ const MiniCart: React.FC<MiniCartProps> = ({ isOpen, onClose, cart, onUpdateQuan
                   {/* Product Info */}
                   <div className="flex-1 min-w-0">
                     <Link
-                      href={`/product/${item.id}`}
+                      to={`/product/${item.id}`}
                       onClick={onClose}
                       className="block"
                     >
@@ -149,14 +149,14 @@ const MiniCart: React.FC<MiniCartProps> = ({ isOpen, onClose, cart, onUpdateQuan
 
             <div className="space-y-2">
               <Link
-                href="/checkout"
+                to="/checkout"
                 onClick={onClose}
                 className="block w-full bg-indigo-700 text-white text-center py-3 rounded-xl font-bold hover:bg-indigo-800 transition shadow-lg"
               >
                 চেকআউট করুন
               </Link>
               <Link
-                href="/cart"
+                to="/cart"
                 onClick={onClose}
                 className="block w-full bg-stone-100 text-stone-700 text-center py-3 rounded-xl font-semibold hover:bg-stone-200 transition"
               >

@@ -10,6 +10,9 @@ export interface Product {
   rating: number;
   reviewCount: number;
   date?: string;
+  description?: string;
+  isPopular?: boolean;
+  isNew?: boolean;
 }
 
 export interface Category {
@@ -40,8 +43,7 @@ export interface ProductReview {
   date: string;
 }
 
-export interface CartItem {
-  productId: string;
+export interface CartItem extends Product {
   quantity: number;
 }
 

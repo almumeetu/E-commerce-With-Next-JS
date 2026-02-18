@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Product } from '../types';
 import { categories } from '../constants';
 import { ShoppingBag } from 'lucide-react';
+import { useSiteContent } from '../context/SiteContentContext';
 
 interface DealOfTheDayProps {
     product: Product;
@@ -20,17 +21,16 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
 };
 
 
-const CountdownTimer = () => {
+const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
     const calculateTimeLeft = () => {
         const now = new Date();
-        const endOfDay = new Date(now);
-        endOfDay.setHours(23, 59, 59, 999);
-        const difference = +endOfDay - +now;
+        const end = new Date(targetDate);
+        const difference = +end - +now;
 
         let timeLeft: { [key: string]: number } = { ঘন্টা: 0, মিনিট: 0, সেকেন্ড: 0 };
         if (difference > 0) {
             timeLeft = {
-                ঘন্টা: Math.floor((difference / (1000 * 60 * 60)) % 24),
+                ঘন্টা: Math.floor((difference / (1000 * 60 * 60))), // Show total hours if > 24
                 মিনিট: Math.floor((difference / 1000 / 60) % 60),
                 সেকেন্ড: Math.floor((difference / 1000) % 60)
             };
@@ -60,6 +60,8 @@ const CountdownTimer = () => {
 };
 
 export const DealOfTheDay: React.FC<DealOfTheDayProps> = ({ product, buyNow, navigateToShop }) => {
+    const { content } = useSiteContent();
+    const dealConfig = content.dealOfTheDay;
     const islamicItemCategory = categories.find(cat => cat.id === 'islamic-item');
     const dealImageUrl = islamicItemCategory?.imageUrl || product.imageUrl;
 
@@ -78,12 +80,12 @@ export const DealOfTheDay: React.FC<DealOfTheDayProps> = ({ product, buyNow, nav
                     <div className="space-y-8">
                         <div>
                             <span className="bg-brand-yellow text-brand-green-deep px-4 py-1 rounded-full text-xs font-black tracking-[0.2em] uppercase mb-4 inline-block shadow-lg">Limited Offer</span>
-                            <h2 className="text-4xl font-black text-white sm:text-5xl md:text-6xl tracking-tight leading-tight">ডিল অফ দ্য ডে</h2>
-                            <p className="mt-4 text-brand-yellow/80 font-medium text-lg">এই বিশেষ অফারটি দ্রুত ফুরিয়ে আসছে, এখনই সংগ্রহ করুন!</p>
+                            <h2 className="text-4xl font-black text-white sm:text-5xl md:text-6xl tracking-tight leading-tight">{dealConfig.title}</h2>
+                            <p className="mt-4 text-brand-yellow/80 font-medium text-lg">{dealConfig.subtitle}</p>
                         </div>
 
                         <div className="bg-black/20 backdrop-blur-md p-8 rounded-[2rem] border border-white/5 inline-block">
-                            <CountdownTimer />
+                            <CountdownTimer targetDate={dealConfig.endTime} />
                         </div>
 
                         <div>

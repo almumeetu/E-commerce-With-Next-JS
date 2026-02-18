@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { MobileProductCard } from './MobileProductCard';
+import ProductCard from './ProductCard';
 import type { Product } from '../types';
 
 interface ProductCarouselProps {
@@ -15,6 +15,7 @@ interface ProductCarouselProps {
 }
 
 export const ProductCarousel: React.FC<ProductCarouselProps> = ({ title, products, onProductSelect, viewAllLink, wishlist, toggleWishlist, addToCart, buyNow, onQuickView }) => {
+  // ... existing state and logic ...
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -78,7 +79,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({ title, product
         >
           {products.map((product) => (
             <div key={product.id} className="snap-start flex-shrink-0 w-[280px] sm:w-[320px] lg:w-[380px]">
-              <MobileProductCard
+              <ProductCard
                 product={product}
                 onProductSelect={onProductSelect}
                 addToCart={addToCart}
