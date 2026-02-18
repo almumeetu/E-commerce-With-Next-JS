@@ -182,14 +182,24 @@ export const register = async (newCustomerData: Omit<Customer, 'id' | 'totalOrde
 
 // --- Order Management ---
 export const createOrder = async (
-  orderData: { customerName: string; phone?: string; totalAmount: number; shippingAddress: string; items: OrderItem[]; billing?: any; shipping?: any; note?: string; paymentMethod?: string },
+  orderData: { customerName: string; phone?: string; totalAmount: number; shippingAddress: string; items: OrderItem[]; billing?: any; shipping?: any; note?: string; paymentMethod?: string; isIncomplete?: boolean },
   currentUser: Customer | null
 ): Promise<Order> => {
   try {
+    const status = orderData.isIncomplete ? OrderStatus.Incomplete : OrderStatus.Processing;
+
+    // Pass status to databaseService.placeOrder if it supports it, 
+    // BUT databaseService.placeOrder seems to hardcode 'pending' in fallback, and RPC might default too.
+    // So we need to update databaseService.ts OR just update it here after creation if needed, 
+    // OR ideally update databaseService.ts to accept status.
+
+    // Let's modify databaseService.placeOrder call signature in next step.
+    // For now, pass it in options if possible or just assume we will fix databaseService.
     const response = await databaseService.placeOrder(
       { name: orderData.customerName, phone: orderData.phone || '', address: orderData.shippingAddress },
       orderData.items.map(item => ({ id: item.productId, quantity: item.quantity, price: item.price })),
-      orderData.totalAmount
+      orderData.totalAmount,
+      status // Add status here
     );
 
     if (!response.success) {
@@ -204,7 +214,7 @@ export const createOrder = async (
       items: orderData.items,
       totalAmount: orderData.totalAmount,
       shippingAddress: orderData.shippingAddress,
-      status: OrderStatus.Processing, // Default initial status
+      status: status,
       date: new Date().toISOString()
     };
 

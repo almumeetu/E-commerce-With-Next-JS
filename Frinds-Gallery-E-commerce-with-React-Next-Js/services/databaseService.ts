@@ -139,11 +139,58 @@ export const databaseService = {
         return { success: true };
     },
 
-    async placeOrder(formData: { name: string; phone: string; address: string }, items: any[], total: number) {
-        console.log("🚀 Placing Order:", { formData, itemsCount: items.length, total });
+    async placeOrder(formData: { name: string; phone: string; address: string }, items: any[], total: number, status: string = 'processing') {
+        console.log("🚀 Placing Order:", { formData, itemsCount: items.length, total, status });
 
         try {
             // Use the advanced atomic function from Supabase setup
+            // Note: RPC currently DOES NOT accept status, it defaults to 'pending' or whatever logic inside.
+            // If we want to support 'incomplete', we might need to NOT use RPC for incomplete orders OR update RPC.
+            // Since RPC is hard to update from here without SQL access, let's use Direct Insert for 'incomplete' status orders
+            // OR use RPC and then update status.
+
+            // Actually, for 'incomplete' orders, we should probably skip the stock check? 
+            // If it's incomplete, maybe we don't reserve stock yet? 
+            // But user wants to capture data. 
+            // Let's try direct insert for 'incomplete' status to ensure we can set the status.
+
+            if (status === 'অসম্পূর্ণ' || status === 'incomplete') {
+                // Fallback: Direct insert without stock check logic for draft/incomplete orders
+                const { data: orderData, error: orderError } = await supabase
+                    .from('orders')
+                    .insert({
+                        customer_name: formData.name,
+                        phone: formData.phone,
+                        address: formData.address,
+                        shipping_address: formData.address,
+                        total_price: total,
+                        total_amount: total,
+                        status: status,
+                        date: new Date().toISOString()
+                    })
+                    .select()
+                    .single();
+
+                if (orderError) throw orderError;
+
+                const newOrderId = orderData.id;
+
+                if (items.length > 0) {
+                    const { error: itemsError } = await supabase
+                        .from('order_items')
+                        .insert(items.map(item => ({
+                            order_id: newOrderId,
+                            product_id: item.id,
+                            quantity: item.quantity,
+                            price: item.price,
+                            product_name: item.name || 'Unknown Product'
+                        })));
+
+                    if (itemsError) console.error("❌ Draft Items Insert Failed:", itemsError);
+                }
+                return { success: true, orderId: newOrderId };
+            }
+
             const { data: orderIds, error } = await supabase.rpc('place_order_with_stock_check', {
                 p_customer_name: formData.name,
                 p_phone: formData.phone,
@@ -157,24 +204,19 @@ export const databaseService = {
             });
 
             if (error) {
-                // If the RPC fails (e.g. function doesn't exist or strict), try fallback
                 console.warn("⚠️ RPC stock check failed, falling back to direct insert. Error:", error);
 
                 // Fallback: Direct insert without stock check logic
                 const { data: orderData, error: orderError } = await supabase
                     .from('orders')
                     .insert({
-                        // Note: Let Supabase generate 'id' (UUID).
-                        // We provide 'order_id' (Text) manually or let default handle it if set? 
-                        // Setup script sets default for 'order_id'.
-                        // But we can explicit set it to be safe.
                         customer_name: formData.name,
                         phone: formData.phone,
                         address: formData.address,
-                        shipping_address: formData.address, // FIX: Some DB setups check this legacy column
+                        shipping_address: formData.address,
                         total_price: total,
-                        total_amount: total, // FIX: Some DB setups check this column
-                        status: 'pending',
+                        total_amount: total,
+                        status: status === 'processing' ? 'pending' : status, // Default to pending if processing requested but forced fallback
                         date: new Date().toISOString()
                     })
                     .select()
@@ -195,13 +237,11 @@ export const databaseService = {
                             product_id: item.id,
                             quantity: item.quantity,
                             price: item.price,
-                            product_name: item.name || 'Unknown Product' // Ensure product_name is passed if required or useful
+                            product_name: item.name || 'Unknown Product'
                         })));
 
                     if (itemsError) {
                         console.error("❌ Fallback Items Insert Failed:", itemsError);
-                        // We don't throw here to avoid failing the whole order if just items fail, 
-                        // but ideally we should transactionalize. Admin will see order with 0 items.
                     }
                 }
 

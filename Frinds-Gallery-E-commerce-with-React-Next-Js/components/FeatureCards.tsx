@@ -16,8 +16,6 @@ export const FeatureCards: React.FC = () => {
     const { content } = useSiteContent();
     const featureData = content.features;
 
-    const { content } = useSiteContent();
-    const featureData = content.features;
 
     return (
         <div className="w-full">

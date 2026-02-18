@@ -26,7 +26,7 @@ const AccountPage = lazy(() => import('./pages/AccountPage').then(m => ({ defaul
 const AuthPage = lazy(() => import('./pages/AuthPage').then(m => ({ default: m.AuthPage })));
 const ReturnsPage = lazy(() => import('./pages/ReturnsPage').then(m => ({ default: m.ReturnsPage })));
 const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
-
+import { SpeedInsights } from "@vercel/speed-insights/next"
 export type Page = 'home' | 'shop' | 'productDetail' | 'checkout' | 'orderSuccess' | 'wishlist' | 'admin' | 'utility' | 'hotDeals' | 'about' | 'contact' | 'account' | 'returns' | 'terms';
 
 const BackToTop: React.FC = () => {
@@ -206,8 +206,17 @@ const App: React.FC = () => {
     setCart([]);
   }
 
-  const handlePlaceOrder = async (orderData: { customerName: string; phone?: string; totalAmount: number; shippingAddress: string; items: OrderItem[] }) => {
+  const handlePlaceOrder = async (orderData: { customerName: string; phone?: string; totalAmount: number; shippingAddress: string; items: OrderItem[], isIncomplete?: boolean }) => {
+    // If isIncomplete is true, we call a specific save method or just pass a status
+    // But since createOrder expects data and returns an order, let's update createOrder to handle status
+    // For now, let's assume createOrder handles the 'isIncomplete' flag by setting status to Incomplete
     const newOrder = await api.createOrder(orderData, currentUser);
+
+    if (orderData.isIncomplete) {
+      // Just Update state silently, don't clear cart, don't navigate
+      console.log('Incomplete order saved:', newOrder.id);
+      return;
+    }
 
     setOrders(prev => [newOrder, ...prev]);
 
