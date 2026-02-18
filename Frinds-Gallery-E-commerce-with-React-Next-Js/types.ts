@@ -53,6 +53,7 @@ export enum OrderStatus {
   Delivered = 'পৌঁছে গেছে',
   Cancelled = 'বাতিল',
   NotFound = 'অর্ডার খুঁজে পাওয়া যায়নি',
+  Incomplete = 'অসম্পূর্ণ',
 }
 
 export interface SalesSummary {

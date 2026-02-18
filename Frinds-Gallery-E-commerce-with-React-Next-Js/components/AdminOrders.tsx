@@ -22,6 +22,7 @@ import {
     XCircle
 } from 'lucide-react';
 import { databaseService } from '../services/databaseService';
+import { sendToSteadfast } from '../services/courierService';
 
 // Helper for notifications
 const notify = (message: string, type: 'success' | 'error' = 'success') => {
@@ -60,6 +61,32 @@ export default function AdminOrders() {
     const [statusFilter, setStatusFilter] = useState('all');
     const [dateFilter, setDateFilter] = useState('all');
     const [showFilters, setShowFilters] = useState(false);
+    const [sendingToCourier, setSendingToCourier] = useState(false);
+
+    const handleSendToCourier = async () => {
+        if (!selectedOrder) return;
+
+        if (!confirm('আপনি কি এই অর্ডারটি কুরিয়ারে পাঠাতে চান? (Steadfast Courier)')) return;
+
+        setSendingToCourier(true);
+        // Map order fields correctly for Steadfast
+        const result = await sendToSteadfast({
+            id: selectedOrder.id,
+            customer_name: selectedOrder.customer_name,
+            phone: selectedOrder.phone,
+            address: selectedOrder.address,
+            total_price: selectedOrder.total_price
+        });
+        setSendingToCourier(false);
+
+        if (result.success) {
+            notify('কুরিয়ারে অর্ডার পাঠানো হয়েছে! ট্র্যাকিং: ' + (result.data?.tracking_code || 'N/A'));
+            // Optionally update status
+            await handleStatusUpdate(selectedOrder.id, 'processing');
+        } else {
+            notify('সমস্যা হয়েছে: ' + result.message, 'error');
+        }
+    };
 
     // Analytics calculations
     const analytics = useMemo(() => {
@@ -283,6 +310,7 @@ export default function AdminOrders() {
                                 <option value="processing">প্রসেসিং</option>
                                 <option value="delivered">ডেলিভারড</option>
                                 <option value="cancelled">বাতিল</option>
+                                <option value="অসম্পূর্ণ">অসম্পূর্ণ (Incomplete)</option>
                             </select>
                         </div>
                         <div>
@@ -420,23 +448,34 @@ export default function AdminOrders() {
                             </div>
 
                             <div className="space-y-4 pt-4 border-t border-stone-100">
-                                <div className="flex items-center gap-2 text-xs font-black text-stone-400 uppercase tracking-widest">
-                                    <Clock size={14} /> স্ট্যাটাস আপডেট করুন
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-xs font-black text-stone-400 uppercase tracking-widest">
+                                        <Clock size={14} /> স্ট্যাটাস আপডেট করুন
+                                    </div>
+                                    <button
+                                        onClick={handleSendToCourier}
+                                        disabled={sendingToCourier}
+                                        className="text-xs bg-emerald-600 text-white px-4 py-2 rounded-lg font-bold shadow-sm hover:bg-emerald-700 transition flex items-center gap-2 disabled:opacity-50"
+                                    >
+                                        {sendingToCourier ? <Loader2 size={12} className="animate-spin" /> : <Truck size={12} />}
+                                        কুরিয়ারে পাঠান
+                                    </button>
                                 </div>
-                                <div className="grid grid-cols-4 gap-4">
+                                <div className="grid grid-cols-5 gap-4">
                                     {[
                                         { id: 'pending', label: 'পেন্ডিং', icon: Clock, color: 'hover:bg-amber-500 hover:text-white text-amber-600 border-amber-100' },
                                         { id: 'processing', label: 'প্রসেসিং', icon: Truck, color: 'hover:bg-blue-500 hover:text-white text-blue-600 border-blue-100' },
                                         { id: 'delivered', label: 'ডেলিভারড', icon: CheckCircle, color: 'hover:bg-emerald-500 hover:text-white text-emerald-600 border-emerald-100' },
                                         { id: 'cancelled', label: 'বাতিল', icon: XCircle, color: 'hover:bg-rose-500 hover:text-white text-rose-600 border-rose-100' },
+                                        { id: 'অসম্পূর্ণ', label: 'অসম্পূর্ণ', icon: X, color: 'hover:bg-gray-500 hover:text-white text-gray-600 border-gray-100' },
                                     ].map((status) => (
                                         <button
                                             key={status.id}
                                             onClick={() => handleStatusUpdate(selectedOrder.id, status.id)}
-                                            className={`flex flex-col items-center gap-2 p-4 rounded-2xl border bg-white transition-all active:scale-95 group/status ${status.color} ${selectedOrder.status === status.id ? ' ring-2 ring-stone-900 ring-offset-2' : ''}`}
+                                            className={`flex flex-col items-center gap-2 p-2 rounded-2xl border bg-white transition-all active:scale-95 group/status ${status.color} ${selectedOrder.status === status.id ? ' ring-2 ring-stone-900 ring-offset-2' : ''}`}
                                         >
-                                            <status.icon size={20} />
-                                            <span className="text-[10px] font-black uppercase tracking-widest">{status.label}</span>
+                                            <status.icon size={16} />
+                                            <span className="text-[9px] font-black uppercase tracking-widest">{status.label}</span>
                                         </button>
                                     ))}
                                 </div>

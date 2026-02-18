@@ -116,11 +116,61 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, products, upda
             <div className="space-y-5">
               <div>
                 <label htmlFor="name" className="block text-base font-medium text-slate-700 mb-1">আপনার নাম *</label>
-                <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} required className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-dark focus:border-transparent" />
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                  }}
+                  onBlur={() => {
+                    if (name && phone) {
+                      onPlaceOrder({
+                        customerName: name,
+                        phone: phone,
+                        totalAmount: total,
+                        shippingAddress: `${address}, ঢাকা ${deliveryLocation === 'inside' ? 'এর ভিতরে' : 'এর বাইরে'}`,
+                        items: cartDetails.map(item => ({
+                          productId: item.productId,
+                          quantity: item.quantity,
+                          price: item.product!.price,
+                        })),
+                        // @ts-ignore
+                        isIncomplete: true
+                      });
+                    }
+                  }}
+                  required
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-dark focus:border-transparent"
+                />
               </div>
               <div>
                 <label htmlFor="phone" className="block text-base font-medium text-slate-700 mb-1">আপনার মোবাইল নাম্বার *</label>
-                <input type="tel" id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} required className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-dark focus:border-transparent" />
+                <input
+                  type="tel"
+                  id="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  onBlur={() => {
+                    if (name && phone) {
+                      onPlaceOrder({
+                        customerName: name,
+                        phone: phone,
+                        totalAmount: total,
+                        shippingAddress: `${address}, ঢাকা ${deliveryLocation === 'inside' ? 'এর ভিতরে' : 'এর বাইরে'}`,
+                        items: cartDetails.map(item => ({
+                          productId: item.productId,
+                          quantity: item.quantity,
+                          price: item.product!.price,
+                        })),
+                        // @ts-ignore
+                        isIncomplete: true
+                      });
+                    }
+                  }}
+                  required
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-dark focus:border-transparent"
+                />
               </div>
               <div>
                 <label className="block text-base font-medium text-slate-700 mb-2">ডেলিভারি এলাকা *</label>
@@ -131,7 +181,31 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, products, upda
               </div>
               <div>
                 <label htmlFor="address" className="block text-base font-medium text-slate-700 mb-1">সম্পূর্ণ ঠিকানা *</label>
-                <textarea id="address" value={address} onChange={(e) => setAddress(e.target.value)} required rows={3} placeholder="বাসা/হোল্ডিং, রোড, থানা" className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-dark focus:border-transparent"></textarea>
+                <textarea
+                  id="address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  onBlur={() => {
+                    if (name && phone && address) {
+                      onPlaceOrder({
+                        customerName: name,
+                        phone: phone,
+                        totalAmount: total,
+                        shippingAddress: `${address}, ঢাকা ${deliveryLocation === 'inside' ? 'এর ভিতরে' : 'এর বাইরে'}`,
+                        items: cartDetails.map(item => ({
+                          productId: item.productId,
+                          quantity: item.quantity,
+                          price: item.product!.price,
+                        })),
+                        // @ts-ignore
+                        isIncomplete: true
+                      });
+                    }
+                  }}
+                  required
+                  rows={3}
+                  placeholder="বাসা/হোল্ডিং, রোড, থানা"
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-dark focus:border-transparent"></textarea>
               </div>
               <div>
                 <label htmlFor="notes" className="block text-base font-medium text-slate-700 mb-1">বিশেষ নোট (ঐচ্ছিক)</label>
