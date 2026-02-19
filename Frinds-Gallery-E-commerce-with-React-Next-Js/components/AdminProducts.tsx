@@ -4,6 +4,7 @@ import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Plus, Search, MoreVertical, Edit2, Trash2, Package, Upload, X, Check, Loader2, Star, Zap, Filter, Download, TrendingUp, AlertCircle, ChevronDown, Eye, BarChart3 } from 'lucide-react';
 import { databaseService } from '../services/databaseService';
 import { supabase } from '../services/supabase';
+import { ImageUpload } from './ImageUpload';
 
 // Helper for toast-like notifications
 const notify = (message: string, type: 'success' | 'error' = 'success') => {
@@ -527,38 +528,14 @@ export default function AdminProducts() {
 
                         <form onSubmit={handleSubmit} className="p-10 space-y-8">
                             {/* Image Upload Area */}
-                            <div className="space-y-3">
-                                <label className="text-xs font-black text-stone-400 uppercase tracking-widest">পণ্যের ছবি</label>
-                                <div
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className={`relative h-56 rounded-[2rem] border-4 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center overflow-hidden
-                                        ${previewUrl ? 'border-emerald-500/20 bg-emerald-50/10' : 'border-stone-100 bg-stone-50 hover:border-emerald-500/30 hover:bg-emerald-50/10'}
-                                    `}
-                                >
-                                    {uploadingImage ? (
-                                        <div className="flex flex-col items-center gap-3">
-                                            <Loader2 className="animate-spin text-emerald-600" size={40} />
-                                            <p className="text-sm font-bold text-stone-500">আপলোড হচ্ছে...</p>
-                                        </div>
-                                    ) : previewUrl ? (
-                                        <>
-                                            <img src={previewUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                <Upload className="text-white" size={32} />
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <div className="text-center group">
-                                            <div className="bg-white p-4 rounded-3xl shadow-sm inline-block mb-3 group-hover:scale-110 transition-transform">
-                                                <Upload className="text-emerald-600" size={32} />
-                                            </div>
-                                            <p className="text-stone-500 font-bold">ক্লিক করে ছবি আপলোড করুন</p>
-                                            <p className="text-stone-300 text-xs mt-1">JPG, PNG বা WebP (সর্বোচ্চ ৫ মেগাবাইট)</p>
-                                        </div>
-                                    )}
-                                    <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
-                                </div>
-                            </div>
+                            {/* Image Upload Area */}
+                            <ImageUpload
+                                value={previewUrl || ''}
+                                onChange={(url) => setPreviewUrl(url)}
+                                label="পণ্যের ছবি"
+                                bucketName="product-images"
+                            />
+                            <input type="hidden" name="image_url" value={previewUrl || ''} />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-2">
