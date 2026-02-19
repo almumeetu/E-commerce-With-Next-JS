@@ -116,7 +116,7 @@ export default function ProductCard({
   return (
     <div
       onClick={handleCardClick}
-      className="group relative bg-white rounded-2xl sm:rounded-[1.5rem] border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 cursor-pointer w-full"
+      className="group relative bg-white rounded-xl border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer w-full flex flex-col h-full"
     >
       {/* Scroll-stop improvement for mobile grid */}
       <div className="relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden bg-slate-50">
@@ -184,7 +184,7 @@ export default function ProductCard({
       </div>
 
       {/* Content */}
-      <div className="p-3 sm:p-4">
+      <div className="p-4 flex flex-col flex-1">
         {/* Category & Rating */}
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[10px] sm:text-xs text-slate-500 uppercase tracking-wider font-semibold truncate max-w-[60%]">

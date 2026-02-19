@@ -74,19 +74,24 @@ export const ShopPage: React.FC<ShopPageProps> = ({ products, categories, initia
                                 <h1 className="text-2xl font-bold text-slate-900">
                                     {currentCategoryName}
                                 </h1>
-                                <div className="flex items-center space-x-2">
-                                    <label htmlFor="sort" className="text-sm font-medium">সর্ট করুন:</label>
-                                    <select
-                                        id="sort"
-                                        value={sortOrder}
-                                        onChange={(e) => setSortOrder(e.target.value)}
-                                        className="text-sm !py-2"
-                                    >
-                                        <option value="default">ডিফল্ট</option>
-                                        <option value="rating">জনপ্রিয়তা</option>
-                                        <option value="price-asc">মূল্য: কম থেকে বেশি</option>
-                                        <option value="price-desc">মূল্য: বেশি থেকে কম</option>
-                                    </select>
+                                <div className="flex items-center gap-3">
+                                    <label htmlFor="sort" className="text-sm font-bold text-slate-700 hidden sm:block">সর্ট করুন:</label>
+                                    <div className="relative group">
+                                        <select
+                                            id="sort"
+                                            value={sortOrder}
+                                            onChange={(e) => setSortOrder(e.target.value)}
+                                            className="appearance-none bg-white pl-4 pr-10 py-2.5 rounded-lg border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 transition-all cursor-pointer shadow-sm hover:border-slate-300"
+                                        >
+                                            <option value="default">ডিফল্ট</option>
+                                            <option value="rating">জনপ্রিয়তা</option>
+                                            <option value="price-asc">মূল্য: কম থেকে বেশি</option>
+                                            <option value="price-desc">মূল্য: বেশি থেকে কম</option>
+                                        </select>
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-brand-green transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -99,8 +104,8 @@ export const ShopPage: React.FC<ShopPageProps> = ({ products, categories, initia
                                         key={category.id}
                                         onClick={() => setSelectedCategory(category.id)}
                                         className={`flex-shrink-0 px-4 py-1.5 text-sm font-semibold rounded-full transition-colors duration-200 ${selectedCategory === category.id
-                                                ? 'bg-brand-green text-white shadow'
-                                                : 'bg-white text-slate-700 hover:bg-green-50 border border-slate-300'
+                                            ? 'bg-brand-green text-white shadow'
+                                            : 'bg-white text-slate-700 hover:bg-green-50 border border-slate-300'
                                             }`}
                                     >
                                         {category.name}
