@@ -82,9 +82,13 @@ export default function AdminOrders() {
         if (result.success) {
             notify('কুরিয়ারে অর্ডার পাঠানো হয়েছে! ট্র্যাকিং: ' + (result.data?.tracking_code || 'N/A'));
             // Optionally update status
-            await handleStatusUpdate(selectedOrder.id, 'processing');
+            await handleStatusUpdate(selectedOrder.id, 'প্রক্রিয়াধীন');
         } else {
-            notify('সমস্যা হয়েছে: ' + result.message, 'error');
+            if (result.message === "API Configuration Missing") {
+                alert("⚠️ Steadfast API Key পাওয়া যায়নি!\n\nআপনার .env ফাইলে 'VITE_STEADFAST_API_KEY' এবং 'VITE_STEADFAST_SECRET_KEY' যুক্ত করুন।");
+            } else {
+                notify('সমস্যা হয়েছে: ' + result.message, 'error');
+            }
         }
     };
 
@@ -148,10 +152,23 @@ export default function AdminOrders() {
 
     const getStatusStyle = (status: string) => {
         switch (status) {
-            case 'delivered': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-            case 'processing': return 'bg-blue-100 text-blue-700 border-blue-200';
-            case 'pending': return 'bg-amber-100 text-amber-700 border-amber-200';
-            case 'cancelled': return 'bg-rose-100 text-rose-700 border-rose-200';
+            case 'পৌঁছে গেছে': // Delivered
+            case 'delivered':
+                return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+            case 'প্রক্রিয়াধীন': // Processing
+            case 'processing':
+            case 'শিপিং-এ': // Shipped
+            case 'shipped':
+                return 'bg-blue-100 text-blue-700 border-blue-200';
+            case 'pending':
+            case 'অপেক্ষমান':
+                return 'bg-amber-100 text-amber-700 border-amber-200';
+            case 'বাতিল': // Cancelled
+            case 'cancelled':
+                return 'bg-rose-100 text-rose-700 border-rose-200';
+            case 'অসম্পূর্ণ': // Incomplete
+            case 'incomplete':
+                return 'bg-gray-100 text-gray-700 border-gray-200';
             default: return 'bg-stone-100 text-stone-700 border-stone-200';
         }
     };
@@ -306,10 +323,11 @@ export default function AdminOrders() {
                                 className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:border-emerald-500 outline-none font-medium text-stone-700"
                             >
                                 <option value="all">সব স্ট্যাটাস</option>
-                                <option value="pending">পেন্ডিং</option>
-                                <option value="processing">প্রসেসিং</option>
-                                <option value="delivered">ডেলিভারড</option>
-                                <option value="cancelled">বাতিল</option>
+                                <option value="pending">pending (Legacy)</option>
+                                <option value="প্রক্রিয়াধীন">প্রক্রিয়াধীন (Processing)</option>
+                                <option value="শিপিং-এ">শিপিং-এ (Shipped)</option>
+                                <option value="পৌঁছে গেছে">পৌঁছে গেছে (Delivered)</option>
+                                <option value="বাতিল">বাতিল (Cancelled)</option>
                                 <option value="অসম্পূর্ণ">অসম্পূর্ণ (Incomplete)</option>
                             </select>
                         </div>
@@ -464,9 +482,9 @@ export default function AdminOrders() {
                                 <div className="grid grid-cols-5 gap-4">
                                     {[
                                         { id: 'pending', label: 'পেন্ডিং', icon: Clock, color: 'hover:bg-amber-500 hover:text-white text-amber-600 border-amber-100' },
-                                        { id: 'processing', label: 'প্রসেসিং', icon: Truck, color: 'hover:bg-blue-500 hover:text-white text-blue-600 border-blue-100' },
-                                        { id: 'delivered', label: 'ডেলিভারড', icon: CheckCircle, color: 'hover:bg-emerald-500 hover:text-white text-emerald-600 border-emerald-100' },
-                                        { id: 'cancelled', label: 'বাতিল', icon: XCircle, color: 'hover:bg-rose-500 hover:text-white text-rose-600 border-rose-100' },
+                                        { id: 'প্রক্রিয়াধীন', label: 'প্রসেসিং', icon: Truck, color: 'hover:bg-blue-500 hover:text-white text-blue-600 border-blue-100' },
+                                        { id: 'পৌঁছে গেছে', label: 'ডেলিভারড', icon: CheckCircle, color: 'hover:bg-emerald-500 hover:text-white text-emerald-600 border-emerald-100' },
+                                        { id: 'বাতিল', label: 'বাতিল', icon: XCircle, color: 'hover:bg-rose-500 hover:text-white text-rose-600 border-rose-100' },
                                         { id: 'অসম্পূর্ণ', label: 'অসম্পূর্ণ', icon: X, color: 'hover:bg-gray-500 hover:text-white text-gray-600 border-gray-100' },
                                     ].map((status) => (
                                         <button
