@@ -12,6 +12,7 @@ import { QuickViewModal } from './components/QuickViewModal';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import type { Product, Category, CartItem, OrderDetails, Order, Customer, OrderItem } from './types';
 import * as api from './services/api';
+import { MetaPixel } from './components/MetaPixel';
 
 // Lazy-load non-critical pages for faster initial load
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
@@ -350,6 +351,7 @@ const App: React.FC = () => {
           toggleWishlist={toggleWishlist}
         />
       )}
+      <MetaPixel />
     </div>
   );
 };

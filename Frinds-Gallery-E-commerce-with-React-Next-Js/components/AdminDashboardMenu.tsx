@@ -1,5 +1,5 @@
 import React from 'react';
-import { BiGridAlt, BiCart, BiPackage, BiGroup, BiCog, BiLogOut, BiMoon, BiBox, BiCalculator, BiTag, BiWindow } from 'react-icons/bi';
+import { BiGridAlt, BiCart, BiPackage, BiGroup, BiCog, BiLogOut, BiMoon, BiBox, BiTag, BiWindow } from 'react-icons/bi';
 
 interface AdminDashboardMenuProps {
     activeView: string;
@@ -15,15 +15,15 @@ export const AdminDashboardMenu: React.FC<AdminDashboardMenuProps> = ({ activeVi
         { id: 'content-manager', label: 'কনটেন্ট ম্যানেজমেন্ট', icon: BiWindow }, // New
         { id: 'customers', label: 'গ্রাহকবৃন্দ', icon: BiGroup },
         { id: 'inventory', label: 'ইনভেন্টরি', icon: BiBox },
-        { id: 'pos', label: 'POS সিস্টেম', icon: BiCalculator },
+
         { id: 'settings', label: 'সেটিংস', icon: BiCog },
     ];
 
     return (
         <aside className="w-64 bg-emerald-950 text-white hidden md:flex flex-col h-screen sticky top-0 shadow-2xl">
             <div className="p-6 border-b border-emerald-800 flex items-center gap-3">
-                <div className="bg-yellow-500 p-1.5 rounded-lg">
-                    <BiMoon className="h-5 w-5 text-emerald-950" />
+                <div className="bg-yellow-500 p-1.5 rounded-lg text-emerald-950">
+                    <BiMoon size={20} />
                 </div>
                 <span className="text-xl font-bold tracking-tight">অ্যাডমিন প্যানেল</span>
             </div>

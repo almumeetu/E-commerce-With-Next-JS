@@ -9,7 +9,7 @@ import { AdminContentManager } from '../components/AdminContentManager';
 import AdminRoute from '../components/AdminRoute';
 import AdminProducts from '../components/AdminProducts';
 import AdminCategories from '../components/AdminCategories';
-import POSSystem from '../components/POSSystem';
+
 import InventoryManagement from '../components/InventoryManagement';
 import type { Page } from '../App';
 import { BiMenu, BiX } from 'react-icons/bi';
@@ -24,8 +24,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ navigate
 
     const renderContent = () => {
         switch (activeView) {
-            case 'pos':
-                return <POSSystem />;
+
             case 'inventory':
                 return <InventoryManagement />;
             case 'products':
@@ -63,11 +62,11 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ navigate
 
                 {/* Mobile Menu Overlay */}
                 {isMobileMenuOpen && (
-                    <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsMobileMenuOpen(false)}></div>
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden" onClick={() => setIsMobileMenuOpen(false)}></div>
                 )}
 
                 {/* Mobile Sidebar */}
-                <div className={`fixed inset-y-0 left-0 w-64 bg-emerald-950 z-50 transform transition-transform duration-300 md:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className={`fixed inset-y-0 left-0 w-72 bg-emerald-950/95 backdrop-blur-xl z-50 transform transition-all duration-500 cubic-out shadow-2xl md:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                     <div className="flex justify-end p-4">
                         <button onClick={() => setIsMobileMenuOpen(false)} className="text-white">
                             <BiX size={24} />

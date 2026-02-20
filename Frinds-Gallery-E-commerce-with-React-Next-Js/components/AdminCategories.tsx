@@ -165,14 +165,17 @@ const AdminCategories: React.FC = () => {
             </div>
 
             {/* Search */}
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-stone-100 flex items-center gap-3">
-                <Search className="text-stone-400" size={20} />
+            {/* Search */}
+            <div className="relative group shadow-sm hover:shadow-md transition-shadow duration-300 rounded-[2rem]">
+                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none z-10">
+                    <Search className="h-6 w-6 text-stone-400 group-focus-within:text-emerald-500 transition-colors duration-300" />
+                </div>
                 <input
                     type="text"
                     placeholder="ক্যাটাগরি খুঁজুন..."
+                    className="block w-full pl-16 pr-6 py-5 rounded-[2rem] border-0 ring-1 ring-stone-200 bg-stone-50/50 text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all duration-300 text-lg font-medium"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="flex-1 outline-none text-stone-600 font-medium placeholder:text-stone-300"
                 />
             </div>
 
@@ -195,8 +198,12 @@ const AdminCategories: React.FC = () => {
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 rounded-2xl bg-stone-50 flex items-center justify-center text-3xl shadow-inner border border-stone-100">
-                                    {category.icon || <Package />}
+                                <div className="w-16 h-16 rounded-2xl bg-stone-50 flex items-center justify-center text-3xl shadow-inner border border-stone-100 overflow-hidden flex-shrink-0 relative">
+                                    {category.image_url ? (
+                                        <img src={category.image_url} alt={category.name} className="absolute inset-0 w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="text-3xl relative z-10">{category.icon || <Package />}</span>
+                                    )}
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-emerald-950">{category.name}</h3>
@@ -236,7 +243,7 @@ const AdminCategories: React.FC = () => {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* Image Upload */}
                                 <div className="space-y-2">
-                                    <label className="text-xs font-black text-stone-400 uppercase tracking-widest leading-loose">ক্যাটাগরি ছবি (অপশনাল)</label>
+                                    <label className="text-xs font-black text-emerald-900 uppercase tracking-widest leading-loose">ক্যাটাগরি ছবি (বাধ্যতামূলক)</label>
                                     <div className="flex items-center gap-4">
                                         <div className="w-20 h-20 rounded-2xl bg-stone-50 border border-stone-200 flex items-center justify-center overflow-hidden relative group">
                                             {previewUrl || editingCategory?.image_url ? (
@@ -267,15 +274,8 @@ const AdminCategories: React.FC = () => {
                                         placeholder="যেমন: পানীয়"
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-stone-400 uppercase tracking-widest leading-loose">আইকন (Emoji)</label>
-                                    <input
-                                        name="icon"
-                                        defaultValue={editingCategory?.icon || '📦'}
-                                        className="w-full px-6 py-4 rounded-2xl bg-stone-50 border-2 border-transparent focus:bg-white focus:border-emerald-500 outline-none font-bold text-stone-700 transition-all placeholder:text-stone-300"
-                                        placeholder="Example: 🥤"
-                                    />
-                                </div>
+                                {/* Icon input removed as per request */}
+                                <input type="hidden" name="icon" value="📦" />
 
                                 <div className="pt-4 flex gap-4">
                                     <button

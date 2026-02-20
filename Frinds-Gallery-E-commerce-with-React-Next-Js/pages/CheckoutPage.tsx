@@ -4,6 +4,7 @@ import { paymentMethods } from '../constants';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import type { Page } from '../App';
 import { XMarkIcon } from '../components/icons';
+import { trackEvent, trackPurchase } from '../components/MetaPixel';
 
 
 interface CheckoutPageProps {
@@ -96,6 +97,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, products, upda
           price: item.product!.price,
         })),
       });
+
+      trackPurchase(`ORDER-${Date.now()}`, total, cartDetails.map(item => ({
+        id: item.productId,
+        name: item.product!.name,
+        price: item.product!.price,
+        quantity: item.quantity
+      })));
     } catch (error) {
       alert('অর্ডার করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
     } finally {

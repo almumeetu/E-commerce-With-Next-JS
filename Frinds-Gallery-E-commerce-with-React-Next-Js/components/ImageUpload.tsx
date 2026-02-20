@@ -6,7 +6,7 @@ interface ImageUploadProps {
     value?: string;
     onChange: (url: string) => void;
     label?: string;
-    bucketName?: 'product-images' | 'site-assets';
+    bucketName?: string;
     className?: string;
 }
 

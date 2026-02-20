@@ -31,8 +31,8 @@ export const AdminContentManager: React.FC<AdminContentManagerProps> = () => {
         <button
             onClick={() => setActiveTab(id)}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === id
-                    ? 'bg-brand-green-deep text-brand-yellow'
-                    : 'text-slate-600 hover:bg-slate-100'
+                ? 'bg-brand-green-deep text-brand-yellow'
+                : 'text-slate-600 hover:bg-slate-100'
                 }`}
         >
             {label}
@@ -40,27 +40,47 @@ export const AdminContentManager: React.FC<AdminContentManagerProps> = () => {
     );
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <h2 className="text-2xl font-bold mb-6 text-slate-800">Content Management</h2>
-
-            <div className="flex gap-2 mb-8 overflow-x-auto pb-2 border-b border-slate-100">
-                {renderTabButton('hero', 'Hero Banner')}
-                {renderTabButton('features', 'Features')}
-                {renderTabButton('deals', 'Deal of the Day')}
-                {renderTabButton('testimonials', 'Testimonials')}
+        <div className="space-y-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 className="text-3xl font-black text-emerald-950">কন্টেন্ট ম্যানেজমেন্ট</h2>
+                    <p className="text-stone-500 font-medium mt-1">আপনার ওয়েবসাইটের কন্টেন্ট পরিবর্তন করুন</p>
+                </div>
             </div>
 
-            <div className="min-h-[400px]">
-                {activeTab === 'hero' && <HeroEditor slides={content.heroSlides} onUpdate={(data) => updateContent('heroSlides', data)} />}
-                {activeTab === 'features' && <FeaturesEditor features={content.features} onUpdate={(data) => updateContent('features', data)} />}
-                {activeTab === 'deals' && (
-                    <DealsEditor
-                        config={content.dealOfTheDay}
-                        products={products}
-                        onUpdate={(data) => updateContent('dealOfTheDay', data)}
-                    />
-                )}
-                {activeTab === 'testimonials' && <TestimonialsEditor testimonials={content.testimonials} onUpdate={(data) => updateContent('testimonials', data)} />}
+            <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-stone-200/50 border border-stone-100">
+                <div className="flex gap-4 mb-10 overflow-x-auto pb-4 border-b border-stone-100 scrollbar-hide">
+                    {[
+                        { id: 'hero', label: 'স্লাইডার / ব্যানার' },
+                        { id: 'features', label: 'ফিচারস' },
+                        { id: 'deals', label: 'ডিল অফ দ্য ডে' },
+                        { id: 'testimonials', label: 'রিভিউ / টেস্টিমোনিয়াল' }
+                    ].map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as any)}
+                            className={`px-6 py-3 rounded-2xl font-bold transition-all whitespace-nowrap ${activeTab === tab.id
+                                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30'
+                                : 'bg-stone-50 text-stone-500 hover:bg-stone-100'
+                                }`}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="min-h-[400px] animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    {activeTab === 'hero' && <HeroEditor slides={content.heroSlides} onUpdate={(data) => updateContent('heroSlides', data)} />}
+                    {activeTab === 'features' && <FeaturesEditor features={content.features} onUpdate={(data) => updateContent('features', data)} />}
+                    {activeTab === 'deals' && (
+                        <DealsEditor
+                            config={content.dealOfTheDay}
+                            products={products}
+                            onUpdate={(data) => updateContent('dealOfTheDay', data)}
+                        />
+                    )}
+                    {activeTab === 'testimonials' && <TestimonialsEditor testimonials={content.testimonials} onUpdate={(data) => updateContent('testimonials', data)} />}
+                </div>
             </div>
         </div>
     );

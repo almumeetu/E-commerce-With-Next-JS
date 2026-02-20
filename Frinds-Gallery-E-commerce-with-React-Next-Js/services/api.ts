@@ -31,7 +31,7 @@ const mapProduct = (data: any): Product => ({
   name: data.name,
   price: Number(data.price),
   originalPrice: data.original_price ? Number(data.original_price) : undefined,
-  imageUrl: productImageMap[data.sku] || data.image_url,
+  imageUrl: data.image_url || productImageMap[data.sku] || '/images/products/placeholder.webp',
   category: data.category,
   sku: data.sku,
   stock: data.stock,

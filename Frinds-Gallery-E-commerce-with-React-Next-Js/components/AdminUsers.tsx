@@ -48,15 +48,17 @@ export default function AdminUsers() {
                 </div>
             </div>
 
-            <div className="relative group">
+            <div className="relative group shadow-sm hover:shadow-md transition-shadow duration-300 rounded-[2rem]">
+                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none z-10">
+                    <Search className="h-6 w-6 text-stone-400 group-focus-within:text-emerald-500 transition-colors duration-300" />
+                </div>
                 <input
                     type="text"
                     placeholder="নাম বা ফোন নম্বর দিয়ে গ্রাহক খুঁজুন..."
-                    className="w-full pl-14 pr-6 py-5 rounded-[2rem] border-2 border-stone-100 bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 outline-none transition-all text-stone-700 font-medium shadow-sm"
+                    className="block w-full pl-16 pr-6 py-5 rounded-[2rem] border-0 ring-1 ring-stone-200 bg-stone-50/50 text-stone-900 placeholder:text-stone-400 focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all duration-300 text-lg font-medium"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-emerald-500 transition-colors" size={24} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

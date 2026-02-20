@@ -161,18 +161,18 @@ export default function InventoryManagement() {
         {/* Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           <div>
-            <h1 className="text-4xl font-black text-stone-900 tracking-tight">ইনভেন্টরি ব্যবস্থাপনা</h1>
-            <p className="text-stone-500 font-medium mt-2">স্টক, পণ্য, এবং মুনাফা ট্র্যাকিং সিস্টেম</p>
+            <h2 className="text-3xl font-black text-stone-900 tracking-tight">ইনভেন্টরি ব্যবস্থাপনা</h2>
+            <p className="text-stone-500 font-medium">আপনার স্টক, পণ্য, এবং লাভ-ক্ষতি ট্র্যাকিং সিস্টেম</p>
           </div>
           <div className="flex gap-4">
             <button
               onClick={handleExportInventory}
               className="bg-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 border border-stone-100 shadow-sm hover:bg-stone-50 transition"
             >
-              <Download className="text-indigo-600" size={20} />
+              <Download className="text-emerald-600" size={20} />
               <span className="text-stone-900">এক্সপোর্ট</span>
             </button>
-            <button className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-indigo-700 transition shadow-lg shadow-indigo-500/20">
+            <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition shadow-xl shadow-emerald-500/20 active:scale-95">
               <Plus size={20} />
               <span>নতুন পণ্য</span>
             </button>
@@ -181,15 +181,15 @@ export default function InventoryManagement() {
 
         {/* Analytics Dashboard */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-[2rem] border border-indigo-200">
+          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 rounded-[2rem] border border-emerald-200">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-white rounded-xl shadow-sm">
-                <Package className="h-6 w-6 text-indigo-600" />
+                <Package className="h-6 w-6 text-emerald-600" />
               </div>
-              <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">মোট</span>
+              <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">মোট</span>
             </div>
-            <p className="text-2xl font-black text-indigo-900">৳{analytics.totalValue.toLocaleString()}</p>
-            <p className="text-xs text-indigo-600 font-bold mt-1">মোট স্টক মূল্য</p>
+            <p className="text-2xl font-black text-emerald-900">৳{analytics.totalValue.toLocaleString()}</p>
+            <p className="text-xs text-emerald-600 font-bold mt-1">মোট স্টক মূল্য</p>
           </div>
 
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-[2rem] border border-blue-200">
@@ -234,7 +234,7 @@ export default function InventoryManagement() {
               <input
                 type="text"
                 placeholder="পণ্য খুঁজুন..."
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 focus:border-indigo-500 outline-none"
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 focus:border-emerald-500 outline-none"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -243,7 +243,7 @@ export default function InventoryManagement() {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-4 py-3 rounded-xl border border-stone-200 focus:border-indigo-500 outline-none"
+              className="px-4 py-3 rounded-xl border border-stone-200 focus:border-emerald-500 outline-none"
             >
               <option value="all">সব ক্যাটাগরি</option>
               <option value="dates">খেজুর</option>
@@ -255,7 +255,7 @@ export default function InventoryManagement() {
             <select
               value={stockFilter}
               onChange={(e) => setStockFilter(e.target.value)}
-              className="px-4 py-3 rounded-xl border border-stone-200 focus:border-indigo-500 outline-none"
+              className="px-4 py-3 rounded-xl border border-stone-200 focus:border-emerald-500 outline-none"
             >
               <option value="all">সব স্ট্যাটাস</option>
               <option value="in_stock">স্টক আছে</option>
@@ -313,9 +313,9 @@ export default function InventoryManagement() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <span className={`text-xs font-bold px-2 py-1 rounded-full ${stockStatus.color === 'indigo' ? 'bg-indigo-100 text-indigo-700' :
-                                stockStatus.color === 'amber' ? 'bg-amber-100 text-amber-700' :
-                                  'bg-rose-100 text-rose-700'
+                            <span className={`text-xs font-bold px-2 py-1 rounded-full ${stockStatus.color === 'indigo' ? 'bg-emerald-100 text-emerald-700' :
+                              stockStatus.color === 'amber' ? 'bg-amber-100 text-amber-700' :
+                                'bg-rose-100 text-rose-700'
                               }`}>
                               {stockStatus.text}
                             </span>
@@ -323,7 +323,7 @@ export default function InventoryManagement() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="font-bold text-indigo-900">৳{product.price}</span>
+                          <span className="font-bold text-emerald-900">৳{product.price}</span>
                         </td>
                         <td className="px-6 py-4">
                           <span className="font-bold text-stone-600">৳{product.cost_price || 0}</span>
@@ -331,11 +331,11 @@ export default function InventoryManagement() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-1">
                             {profitMargin >= 0 ? (
-                              <TrendingUp className="w-4 h-4 text-indigo-600" />
+                              <TrendingUp className="w-4 h-4 text-emerald-600" />
                             ) : (
                               <TrendingDown className="w-4 h-4 text-rose-600" />
                             )}
-                            <span className={`font-bold text-sm ${profitMargin >= 0 ? 'text-indigo-600' : 'text-rose-600'
+                            <span className={`font-bold text-sm ${profitMargin >= 0 ? 'text-emerald-600' : 'text-rose-600'
                               }`}>
                               {profitMargin.toFixed(1)}%
                             </span>
@@ -389,10 +389,10 @@ export default function InventoryManagement() {
                       </td>
                       <td className="px-6 py-4">
                         <span className={`text-xs font-bold px-2 py-1 rounded-full ${transaction.transaction_type === 'purchase' ? 'bg-indigo-100 text-indigo-700' :
-                            transaction.transaction_type === 'sale' ? 'bg-blue-100 text-blue-700' :
-                              transaction.transaction_type === 'adjustment' ? 'bg-amber-100 text-amber-700' :
-                                transaction.transaction_type === 'return' ? 'bg-purple-100 text-purple-700' :
-                                  'bg-rose-100 text-rose-700'
+                          transaction.transaction_type === 'sale' ? 'bg-blue-100 text-blue-700' :
+                            transaction.transaction_type === 'adjustment' ? 'bg-amber-100 text-amber-700' :
+                              transaction.transaction_type === 'return' ? 'bg-purple-100 text-purple-700' :
+                                'bg-rose-100 text-rose-700'
                           }`}>
                           {transaction.transaction_type}
                         </span>
