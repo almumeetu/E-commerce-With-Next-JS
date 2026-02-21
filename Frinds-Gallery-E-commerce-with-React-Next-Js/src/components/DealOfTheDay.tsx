@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import type { Product } from '../types';
 import { categories } from '../constants';
 import { ShoppingBag } from 'lucide-react';
@@ -73,8 +74,8 @@ export const DealOfTheDay: React.FC<DealOfTheDayProps> = ({ product, buyNow, nav
 
             <div className="w-full mx-auto max-w-8xl px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                    <div className="w-full h-96 lg:h-[500px] rounded-[3rem] overflow-hidden group shadow-2xl border-4 border-white/10">
-                        <img src={dealImageUrl} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                    <div className="w-full h-96 lg:h-[500px] rounded-[3rem] overflow-hidden group shadow-2xl border-4 border-white/10 relative">
+                        <Image src={dealImageUrl} alt={product.name} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" sizes="(max-width: 1024px) 100vw, 50vw" />
                     </div>
 
                     <div className="space-y-8">

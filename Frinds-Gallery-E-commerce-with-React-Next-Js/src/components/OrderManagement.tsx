@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import type { Order, Product } from '../types';
 import { OrderStatus } from '../types';
 
@@ -52,7 +53,7 @@ const OrderDetailsModal: React.FC<{ order: Order; products: Product[]; onClose: 
                                 const product = products.find(p => p.id === item.productId);
                                 return (
                                     <li key={item.productId} className="flex items-center space-x-4 p-2 bg-gray-50 rounded-md">
-                                        <img src={product?.imageUrl} alt={product?.name} className="w-12 h-12 object-cover rounded"/>
+                                        <Image src={product?.imageUrl} alt={product?.name} width={48} height={48} className="w-12 h-12 object-cover rounded"/>
                                         <div className="flex-grow">
                                             <p className="font-medium text-gray-900">{product?.name || 'Unknown Product'}</p>
                                             <p className="text-sm text-gray-500">পরিমাণ: {item.quantity}</p>

@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import type { Page } from '../types';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation, EffectFade } from 'swiper/modules';
@@ -34,10 +35,13 @@ export const HeroGallery: React.FC<HeroGalleryProps> = ({ navigateTo }) => {
                 {slides.map((slide) => (
                     <SwiperSlide key={slide.id} className="relative w-full h-full">
                         <div className="absolute inset-0">
-                            <img
-                                className="w-full h-full object-cover object-center"
+                            <Image
+                                className="object-cover object-center"
                                 src={slide.image}
                                 alt="Fashion banner"
+                                fill
+                                priority={slide.id === slides[0].id}
+                                sizes="100vw"
                             />
                             <div className="absolute inset-0 bg-gradient-to-r from-brand-green-deep/80 via-brand-green-deep/30 to-transparent"></div>
                         </div>

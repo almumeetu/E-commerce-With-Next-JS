@@ -131,7 +131,8 @@ export const getCustomers = async (): Promise<Customer[]> => {
 
 export const getOrders = async (customerId?: string): Promise<Order[]> => {
   try {
-    const orders = await databaseService.getOrdersWithItems();
+    const result = await databaseService.getOrdersWithItems(1, 1000);
+    const orders = result?.orders || [];
     if (orders && orders.length > 0) {
       if (customerId) {
         return orders.filter(o => o.customer_id === customerId).map(mapOrder);
@@ -319,7 +320,8 @@ export const deleteProduct = async (productId: string): Promise<{ success: boole
 // --- Dashboard Widgets ---
 export const getSalesSummary = async (): Promise<SalesSummary> => {
   try {
-    const orders = await databaseService.getOrdersWithItems();
+    const result = await databaseService.getOrdersWithItems(1, 1000);
+    const orders = result?.orders || [];
     const totalSalesValue = orders.reduce((sum: number, order: any) => sum + Number(order.total_amount), 0);
     const totalOrdersCount = orders.length;
     const grossProfitValue = totalSalesValue * 0.25;

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { BiShoppingBag as ShoppingBag, BiMoon as Moon, BiHeart as Heart, BiSearch as Search, BiArrowBack as ArrowLeft } from 'react-icons/bi';
 import { PRODUCTS } from '../constants';
@@ -119,7 +120,7 @@ export default function Navbar({ onCartClick }: NavbarProps) {
                         onClick={handleResultClick}
                         className="flex items-center p-3 hover:bg-indigo-50 border-b border-stone-100 last:border-none transition group"
                       >
-                        <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-cover rounded-lg bg-stone-100" />
+                        <Image src={product.imageUrl} alt={product.name} width={48} height={48} className="w-12 h-12 object-cover rounded-lg bg-stone-100" />
                         <div className="ml-3">
                           <p className="text-sm font-semibold text-stone-800 group-hover:text-indigo-700 transition">{product.name}</p>
                           <p className="text-xs text-stone-500 capitalize">{product.category}</p>
@@ -211,7 +212,7 @@ export default function Navbar({ onCartClick }: NavbarProps) {
                       onClick={handleResultClick}
                       className="flex items-center p-4 border-b border-indigo-800/50 last:border-none active:bg-indigo-800/50 transition"
                     >
-                      <img src={product.imageUrl} alt={product.name} className="w-14 h-14 object-cover rounded-lg bg-indigo-800" />
+                      <Image src={product.imageUrl} alt={product.name} width={56} height={56} className="w-14 h-14 object-cover rounded-lg bg-indigo-800" />
                       <div className="ml-4 flex-1">
                         <p className="text-base font-medium text-indigo-50">{product.name}</p>
                         <p className="text-sm text-rose-400 font-bold mt-1">৳ {product.price}</p>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import type { Product } from '../types';
 import ProductForm from './ProductForm';
 import { categories } from '../constants';
@@ -56,7 +57,7 @@ export const ProductManagement: React.FC<ProductManagementProps> = ({ products, 
                         {products.map(product => (
                             <tr key={product.id} className="bg-white border-b hover:bg-gray-50">
                                 <td className="px-6 py-4">
-                                    <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-cover rounded"/>
+                                    <Image src={product.imageUrl} alt={product.name} width={48} height={48} className="w-12 h-12 object-cover rounded"/>
                                 </td>
                                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                     {product.name}

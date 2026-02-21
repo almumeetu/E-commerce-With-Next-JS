@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import type { Product } from '../types';
 import { HeartIcon, XMarkIcon, PlusIcon, MinusIcon } from './icons';
 
@@ -30,7 +31,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                     <div className="grid grid-cols-1 lg:grid-cols-2">
                         {/* Image Section */}
                         <div className="relative aspect-square lg:aspect-auto h-full min-h-[400px] bg-slate-50 overflow-hidden">
-                            <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                            <Image src={product.imageUrl} alt={product.name} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" sizes="(max-width: 1024px) 100vw, 50vw" priority />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
                             {discount > 0 && (
                                 <div className="absolute top-8 left-8 bg-red-500 text-white font-black px-4 py-1.5 rounded-full shadow-xl">

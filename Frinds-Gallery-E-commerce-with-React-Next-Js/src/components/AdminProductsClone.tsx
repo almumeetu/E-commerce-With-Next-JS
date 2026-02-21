@@ -1,5 +1,6 @@
 
 import React, { useState, useRef, useMemo, useEffect } from 'react';
+import Image from 'next/image';
 import { Plus, Search, Edit2, Trash2, Package, Upload, X, Check, Loader2, TrendingUp, Filter, Download, ChevronDown, BarChart3 } from 'lucide-react';
 import { databaseService } from '../services/databaseService';
 import { supabase } from '../services/supabase';
@@ -341,8 +342,8 @@ export default function AdminProductsClone() {
                                 <tr key={product.id} className="hover:bg-emerald-50/30 transition-colors group">
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-14 h-14 rounded-2xl border-2 border-stone-100 overflow-hidden bg-stone-50 group-hover:border-emerald-200 transition-colors">
-                                                <img src={product.image_url} alt="" className="w-full h-full object-cover" />
+                                            <div className="w-14 h-14 rounded-2xl border-2 border-stone-100 overflow-hidden bg-stone-50 group-hover:border-emerald-200 transition-colors relative">
+                                                <Image src={product.image_url} alt="" fill className="object-cover" sizes="56px" />
                                             </div>
                                             <div>
                                                 <p className="text-base font-bold text-stone-900 group-hover:text-emerald-800 transition-colors">{product.name}</p>
@@ -406,7 +407,7 @@ export default function AdminProductsClone() {
                                     {uploadingImage ? (
                                         <Loader2 className="animate-spin text-emerald-600" size={40} />
                                     ) : previewUrl ? (
-                                        <img src={previewUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+                                        <Image src={previewUrl} alt="Preview" fill className="object-cover" sizes="200px" />
                                     ) : (
                                         <Upload className="text-stone-300" size={32} />
                                     )}

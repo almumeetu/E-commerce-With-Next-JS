@@ -1,38 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import Image from 'next/image';
 import { ShoppingCart, Package, TrendingUp, AlertTriangle, Users, ArrowUpRight, BarChart3, DollarSign, Clock, Star, Download } from 'lucide-react';
 import { databaseService } from '../services/databaseService';
+import { useDashboardData } from '../hooks/useSWRData';
 
 interface SalesSummaryWidgetProps {
     setActiveView: (view: string) => void;
 }
 
 export default function SalesSummaryWidget({ setActiveView }: SalesSummaryWidgetProps) {
-    const [orders, setOrders] = useState<any[]>([]);
-    const [products, setProducts] = useState<any[]>([]);
-    const [customers, setCustomers] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        loadData();
-    }, []);
-
-    const loadData = async () => {
-        setLoading(true);
-        try {
-            const [ordersData, productsData, customersData] = await Promise.all([
-                databaseService.getOrdersWithItems(),
-                databaseService.getProducts(),
-                databaseService.getCustomers()
-            ]);
-            setOrders(ordersData || []);
-            setProducts(productsData || []);
-            setCustomers(customersData || []);
-        } catch (error) {
-            console.error('Failed to load dashboard data:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // Use SWR for data fetching with caching
+    const { orders, products, customers, isLoading: loading } = useDashboardData();
 
     const stats = useMemo(() => {
         const totalRevenue = orders.reduce((sum, order) => sum + Number(order.total_price || order.total_amount || 0), 0);
@@ -345,7 +323,7 @@ export default function SalesSummaryWidget({ setActiveView }: SalesSummaryWidget
                                 <div key={product.id} className="flex items-center justify-between p-4 bg-stone-50 rounded-[2rem] border border-white hover:border-rose-200 transition-colors group/item shadow-sm">
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 bg-white rounded-xl p-1 overflow-hidden shadow-sm group-hover/item:scale-110 transition-transform">
-                                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover rounded-lg" />
+                                            <Image src={product.image_url} alt={product.name} width={48} height={48} className="w-full h-full object-cover rounded-lg" />
                                         </div>
                                         <div>
                                             <h4 className="text-sm font-black text-stone-800 line-clamp-1">{product.name}</h4>

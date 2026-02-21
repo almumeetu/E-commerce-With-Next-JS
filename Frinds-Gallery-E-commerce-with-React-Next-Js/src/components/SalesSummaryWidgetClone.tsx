@@ -15,11 +15,11 @@ export default function SalesSummaryWidgetClone() {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [ordersData, productsData] = await Promise.all([
-                databaseService.getOrdersWithItems(),
+            const [ordersResult, productsData] = await Promise.all([
+                databaseService.getOrdersWithItems(1, 1000),
                 databaseService.getProducts()
             ]);
-            setOrders(ordersData || []);
+            setOrders(ordersResult?.orders || []);
             setProducts(productsData || []);
         } catch (error) {
             console.error('Failed to load dashboard data:', error);

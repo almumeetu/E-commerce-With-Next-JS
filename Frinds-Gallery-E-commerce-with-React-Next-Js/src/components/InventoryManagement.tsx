@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import Image from 'next/image';
 import { Search, Plus, Download, TrendingUp, TrendingDown, AlertTriangle, Package, Truck, DollarSign, BarChart3, Filter, Eye, Edit, Trash2, RefreshCw } from 'lucide-react';
 import { supabase } from '../services/supabase';
 
@@ -299,8 +300,8 @@ export default function InventoryManagement() {
                       <tr key={product.id} className="hover:bg-stone-50 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg overflow-hidden bg-stone-100">
-                              <img src={product.image_url || '/images/placeholder.png'} alt={product.name} className="w-full h-full object-cover" />
+                            <div className="w-10 h-10 rounded-lg overflow-hidden bg-stone-100 relative">
+                              <Image src={product.image_url || '/images/placeholder.png'} alt={product.name} fill className="object-cover" sizes="40px" />
                             </div>
                             <div>
                               <p className="font-bold text-stone-900">{product.name}</p>

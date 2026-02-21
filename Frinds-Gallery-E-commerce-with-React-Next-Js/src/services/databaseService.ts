@@ -46,9 +46,18 @@ export const databaseService = {
     },
 
     // Orders
-    async getOrdersWithItems() {
-        // Attempt 1: Full Fetch with Joins
+    async getOrdersWithItems(page: number = 1, pageSize: number = 20) {
+        // Attempt 1: Full Fetch with Joins (with pagination)
         try {
+            const offset = (page - 1) * pageSize;
+            
+            // Get total count for pagination
+            const { count, error: countError } = await supabase
+                .from('orders')
+                .select('*', { count: 'exact', head: true });
+
+            if (countError) throw countError;
+
             const { data: orders, error } = await supabase
                 .from('orders')
                 .select(`
@@ -58,13 +67,12 @@ export const databaseService = {
                         product:products(name)
                     )
                 `)
-                // Try sorting by created_at first, if it fails, the query might just return unordered data or error
-                // but since we run the fix script, this column SHOULD exist now.
-                .order('created_at', { ascending: false });
+                .order('created_at', { ascending: false })
+                .range(offset, offset + pageSize - 1);
 
             if (error) throw error;
 
-            return (orders || []).map(order => ({
+            const mappedOrders = (orders || []).map(order => ({
                 ...order,
                 // Ensure date field is populated for frontend even if DB only has created_at
                 date: order.date || order.created_at,
@@ -74,26 +82,51 @@ export const databaseService = {
                     product_name: item.product?.name || 'অজানা পণ্য (' + (item.product_id ? item.product_id.toString().slice(0, 4) : 'N/A') + ')'
                 })) || []
             }));
+
+            return {
+                orders: mappedOrders,
+                total: count || 0,
+                page,
+                pageSize,
+                totalPages: Math.ceil((count || 0) / pageSize)
+            };
         } catch (fullFetchError: any) {
             console.error('⚠️ Full Order Fetch Failed (likely join error):', fullFetchError);
 
             // Attempt 2: Fetch Orders Only (Fallback to at least show the orders)
             try {
                 console.log('🔄 Attempting fallback fetch (Orders only)...');
+                
+                const offset = (page - 1) * pageSize;
+                
+                // Get total count
+                const { count, error: countError } = await supabase
+                    .from('orders')
+                    .select('*', { count: 'exact', head: true });
+
+                if (countError) throw countError;
+
                 const { data: orders, error: ordersError } = await supabase
                     .from('orders')
                     .select('*')
-                    .order('created_at', { ascending: false });
+                    .order('created_at', { ascending: false })
+                    .range(offset, offset + pageSize - 1);
 
                 if (ordersError) throw ordersError;
 
                 console.log('✅ Fallback fetch successful. Orders loaded without items.');
 
                 // Return orders with empty items array to prevent UI crash
-                return (orders || []).map(order => ({
-                    ...order,
-                    items: []
-                }));
+                return {
+                    orders: (orders || []).map(order => ({
+                        ...order,
+                        items: []
+                    })),
+                    total: count || 0,
+                    page,
+                    pageSize,
+                    totalPages: Math.ceil((count || 0) / pageSize)
+                };
             } catch (fallbackError) {
                 console.error('❌ Critical: Failed to fetch any orders from Supabase, trying local storage...', fallbackError);
                 try {
@@ -104,21 +137,31 @@ export const databaseService = {
 
                     if (Array.isArray(localOrders) && localOrders.length > 0) {
                         console.log(`🗂 Loaded ${localOrders.length} local orders from browser storage`);
-                        return localOrders.map((o: any) => ({
-                            id: o.id || `local-${Date.now()}`,
-                            customer_name: o.customer_name || o.customerName || 'Unknown',
-                            phone: o.phone || '',
-                            address: o.address || o.shippingAddress || '',
-                            total_price: Number(o.total_amount || o.total || 0),
-                            status: o.status || 'pending',
-                            created_at: o.created_at || o.date || new Date().toISOString(),
-                            items: (o.items || []).map((it: any) => ({
-                                product_id: it.product_id || it.productId,
-                                product_name: it.product_name || it.name || 'Unknown Product',
-                                quantity: Number(it.quantity || 0),
-                                price: Number(it.price || 0)
-                            }))
-                        }));
+                        
+                        const offset = (page - 1) * pageSize;
+                        const paginatedOrders = localOrders.slice(offset, offset + pageSize);
+                        
+                        return {
+                            orders: paginatedOrders.map((o: any) => ({
+                                id: o.id || `local-${Date.now()}`,
+                                customer_name: o.customer_name || o.customerName || 'Unknown',
+                                phone: o.phone || '',
+                                address: o.address || o.shippingAddress || '',
+                                total_price: Number(o.total_amount || o.total || 0),
+                                status: o.status || 'pending',
+                                created_at: o.created_at || o.date || new Date().toISOString(),
+                                items: (o.items || []).map((it: any) => ({
+                                    product_id: it.product_id || it.productId,
+                                    product_name: it.product_name || it.name || 'Unknown Product',
+                                    quantity: Number(it.quantity || 0),
+                                    price: Number(it.price || 0)
+                                }))
+                            })),
+                            total: localOrders.length,
+                            page,
+                            pageSize,
+                            totalPages: Math.ceil(localOrders.length / pageSize)
+                        };
                     }
                 } catch (localErr) {
                     console.error('🧹 Local storage orders not available or invalid format:', localErr);
@@ -200,7 +243,8 @@ export const databaseService = {
                     product_id: item.id,
                     quantity: item.quantity,
                     price: item.price
-                }))
+                })),
+                p_status: status || 'pending'
             });
 
             if (error) {
@@ -216,7 +260,7 @@ export const databaseService = {
                         shipping_address: formData.address,
                         total_price: total,
                         total_amount: total,
-                        status: status === 'processing' ? 'pending' : status, // Default to pending if processing requested but forced fallback
+                        status: status || 'pending',
                         date: new Date().toISOString()
                     })
                     .select()

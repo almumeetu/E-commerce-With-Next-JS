@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Product } from '@/types';
 import { BiShow, BiHeart, BiShoppingBag, BiPackage, BiPlus, BiLoaderAlt, BiStar } from 'react-icons/bi';
 
@@ -82,11 +83,13 @@ export default function ProductCard({
       >
         <div className="w-20 h-20 rounded-lg overflow-hidden bg-slate-50 flex-shrink-0 relative">
           {!imageError ? (
-            <img
+            <Image
               src={displayImage}
               alt={product.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
               onError={() => setImageError(true)}
+              sizes="80px"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-slate-300">
@@ -152,12 +155,13 @@ export default function ProductCard({
 
         {/* Image */}
         {!imageError ? (
-          <img
+          <Image
             src={displayImage}
             alt={product.name}
-            className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+            fill
+            className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
             onError={() => setImageError(true)}
-            loading="lazy"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-2">

@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import type { Review } from '../types';
 import { useSiteContent, Testimonial } from '../context/SiteContentContext';
 
@@ -20,7 +21,7 @@ const ReviewCard: React.FC<{ review: Testimonial }> = ({ review }) => {
             <div className="flex items-center mb-8">
                 <div className="relative">
                     {review.image ? (
-                        <img src={review.image} alt={review.name} className="w-16 h-16 rounded-full object-cover mr-5 border-4 border-slate-50 shadow-lg group-hover:border-brand-yellow transition-colors duration-300" />
+                        <Image src={review.image} alt={review.name} width={64} height={64} className="w-16 h-16 rounded-full object-cover mr-5 border-4 border-slate-50 shadow-lg group-hover:border-brand-yellow transition-colors duration-300" />
                     ) : (
                         <div className="w-16 h-16 rounded-full bg-gray-200 mr-5 border-4 border-slate-50 shadow-lg group-hover:border-brand-yellow transition-colors duration-300 flex items-center justify-center">
                             <span className="text-gray-500 text-xl font-bold">{review.name.charAt(0)}</span>

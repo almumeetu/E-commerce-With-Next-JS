@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Plus, Edit2, Trash2, X, Search, Package, Loader2, Save } from 'lucide-react';
 import * as api from '../services/api';
 import { supabase } from '../services/supabase';
@@ -200,7 +201,7 @@ const AdminCategories: React.FC = () => {
                             <div className="flex items-center gap-4">
                                 <div className="w-16 h-16 rounded-2xl bg-stone-50 flex items-center justify-center text-3xl shadow-inner border border-stone-100 overflow-hidden flex-shrink-0 relative">
                                     {category.image_url ? (
-                                        <img src={category.image_url} alt={category.name} className="absolute inset-0 w-full h-full object-cover" />
+                                        <Image src={category.image_url} alt={category.name} fill className="object-cover" sizes="64px" />
                                     ) : (
                                         <span className="text-3xl relative z-10">{category.icon || <Package />}</span>
                                     )}
@@ -247,7 +248,7 @@ const AdminCategories: React.FC = () => {
                                     <div className="flex items-center gap-4">
                                         <div className="w-20 h-20 rounded-2xl bg-stone-50 border border-stone-200 flex items-center justify-center overflow-hidden relative group">
                                             {previewUrl || editingCategory?.image_url ? (
-                                                <img src={previewUrl || editingCategory?.image_url} alt="" className="w-full h-full object-cover" />
+                                                <Image src={previewUrl || editingCategory?.image_url} alt="" fill className="object-cover" sizes="80px" />
                                             ) : (
                                                 <Package className="text-stone-300" size={32} />
                                             )}

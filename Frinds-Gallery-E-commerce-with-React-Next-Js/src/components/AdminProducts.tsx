@@ -1,10 +1,12 @@
 'use client'; // Harmless in Vite, keeps compatibility if moved back to Next.js
 
 import React, { useState, useRef, useMemo, useEffect } from 'react';
+import Image from 'next/image';
 import { Plus, Search, MoreVertical, Edit2, Trash2, Package, Upload, X, Check, Loader2, Star, Zap, Filter, Download, TrendingUp, AlertCircle, ChevronDown, Eye, BarChart3 } from 'lucide-react';
 import { databaseService } from '../services/databaseService';
 import { supabase } from '../services/supabase';
 import { ImageUpload } from './ImageUpload';
+import { useProducts, useCategories } from '../hooks/useSWRData';
 
 // Helper for toast-like notifications
 const notify = (message: string, type: 'success' | 'error' = 'success') => {
@@ -458,8 +460,8 @@ export default function AdminProducts() {
                                 <tr key={product.id} className="hover:bg-emerald-50/30 transition-colors group">
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-14 h-14 rounded-2xl border-2 border-stone-100 overflow-hidden bg-stone-50 group-hover:border-emerald-200 transition-colors">
-                                                <img src={product.image_url} alt="" className="w-full h-full object-cover" />
+                                            <div className="w-14 h-14 rounded-2xl border-2 border-stone-100 overflow-hidden bg-stone-50 group-hover:border-emerald-200 transition-colors relative">
+                                                <Image src={product.image_url} alt="" fill className="object-cover" sizes="56px" />
                                             </div>
                                             <div>
                                                 <div className="flex items-center gap-2">

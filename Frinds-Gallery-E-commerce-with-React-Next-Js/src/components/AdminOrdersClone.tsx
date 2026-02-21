@@ -19,8 +19,8 @@ export default function AdminOrdersClone() {
     const loadOrders = async () => {
         setLoading(true);
         try {
-            const data = await databaseService.getOrdersWithItems();
-            setOrders(data);
+            const data = await databaseService.getOrdersWithItems(1, 1000);
+            setOrders(data?.orders || []);
         } catch (error) {
             console.error('Failed to load orders:', error);
         } finally {

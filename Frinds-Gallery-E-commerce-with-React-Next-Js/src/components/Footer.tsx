@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import type { Page } from '../types';
 import type { Category } from '../types';
 import { BiLogoFacebook, BiLogoInstagram, BiLogoYoutube, BiLogoTiktok, BiMap, BiEnvelope, BiPhoneCall } from 'react-icons/bi';
@@ -177,8 +178,8 @@ export const Footer: React.FC<FooterProps> = ({ navigateTo, navigateToShop, cate
                         <div className="flex items-center gap-4">
                             <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold hidden sm:block">We Accept</span>
                             <div className="flex items-center gap-3 opacity-70 hover:opacity-100 transition-opacity">
-                                <img src="/images/logo/bkash.png" alt="bKash" className="h-6 object-contain grayscale hover:grayscale-0 transition-all duration-300" />
-                                <img src="/images/logo/nagad.png" alt="Nagad" className="h-6 object-contain grayscale hover:grayscale-0 transition-all duration-300" />
+                                <Image src="/images/logo/bkash.png" alt="bKash" width={80} height={24} className="h-6 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300" />
+                                <Image src="/images/logo/nagad.png" alt="Nagad" width={80} height={24} className="h-6 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300" />
                                 <div className="h-6 w-px bg-white/10"></div>
                                 <span className="text-xs text-white/50 font-medium">COD Available</span>
                             </div>

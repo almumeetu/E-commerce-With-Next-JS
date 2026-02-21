@@ -75,7 +75,8 @@ export const orderServiceAdapter = {
   async getCustomerOrders(customerId?: string): Promise<any[]> {
     try {
       if (customerId) {
-        return await databaseService.getOrdersWithItems();
+        const result = await databaseService.getOrdersWithItems(1, 1000);
+        return result?.orders || [];
       }
       return [];
     } catch (error) {

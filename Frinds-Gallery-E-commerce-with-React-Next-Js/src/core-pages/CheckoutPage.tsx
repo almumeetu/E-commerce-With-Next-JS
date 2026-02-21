@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import type { Product, CartItem, OrderItem, Customer } from '../types';
 import { paymentMethods } from '../constants';
 import { Breadcrumbs } from '../components/Breadcrumbs';
@@ -228,7 +229,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, products, upda
             <div className="space-y-4 max-h-64 overflow-y-auto pr-2">
               {cartDetails.map(item => (
                 <div key={item.id} className="flex items-start space-x-4">
-                  <img src={item.product!.imageUrl} alt={item.product!.name} className="w-20 h-20 rounded-lg object-cover" />
+                  <Image src={item.product!.imageUrl} alt={item.product!.name} width={80} height={80} className="w-20 h-20 rounded-lg object-cover" />
                   <div className="flex-grow">
                     <p className="font-semibold text-base leading-tight">{item.product!.name}</p>
                     <p className="text-sm text-slate-600 mt-1">পরিমাণ: {item.quantity}</p>
@@ -293,7 +294,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, products, upda
                         className="h-5 w-5 text-brand-green focus:ring-brand-green"
                       />
                       <div className="flex items-center space-x-3">
-                        <img src={method.icon} alt={method.name} className="h-8 w-auto object-contain" />
+                        <Image src={method.icon} alt={method.name} width={32} height={32} className="h-8 w-auto object-contain" />
                         <span className="font-medium text-slate-700">{method.name}</span>
                       </div>
                     </div>
