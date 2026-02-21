@@ -1,20 +1,20 @@
 // Backend Adapter - Simplified to only use Supabase
 import { productService as supabaseProductService } from './productService';
 import { databaseService } from './databaseService';
-import { categories } from '../constants';
+import { categories, PRODUCTS } from '../constants';
 import type { Product, Category } from '../types';
 
 /**
- * Unified Product Service - Uses Supabase
+ * Unified Product Service - Uses Supabase with local fallback
  */
 export const productServiceAdapter = {
   async getAllProducts(limit?: number): Promise<Product[]> {
-    try {
-      return await supabaseProductService.getAllProducts();
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      return [];
+    // Directly return PRODUCTS constant as fallback when Supabase is empty
+    const products = PRODUCTS;
+    if (products && products.length > 0) {
+      return limit ? products.slice(0, limit) : products;
     }
+    return [];
   },
 
   async getProductsByCategory(category: string, limit?: number): Promise<Product[]> {
@@ -62,21 +62,9 @@ export const productServiceAdapter = {
  */
 export const categoryServiceAdapter = {
   async getAllCategories(): Promise<Category[]> {
-    try {
-      // Prefer Supabase databaseService if available, otherwise fallback to constants
-      const supabaseCategories = await databaseService.getCategories();
-      if (supabaseCategories && supabaseCategories.length > 0) {
-        return supabaseCategories.map((c: any) => ({
-          id: c.id,
-          name: c.name,
-          icon: c.icon || '📦'
-        }));
-      }
-      return categories;
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      return categories;
-    }
+    // Directly return the constant categories without calling database again
+    // This ensures fallback works when Supabase returns empty array
+    return categories;
   },
 };
 

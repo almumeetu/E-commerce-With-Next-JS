@@ -73,7 +73,8 @@ export const getCategories = async (): Promise<Category[]> => {
         id: c.id,
         name: c.name,
         icon: c.icon || '📦',
-        slug: c.slug
+        slug: c.slug,
+        imageUrl: c.image_url || c.imageUrl
       }));
     }
     return await categoryServiceAdapter.getAllCategories();
