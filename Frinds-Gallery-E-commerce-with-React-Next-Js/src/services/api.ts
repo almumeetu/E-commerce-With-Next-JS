@@ -1,9 +1,10 @@
-import { productServiceAdapter, categoryServiceAdapter } from './backendAdapter';
+import { productServiceAdapter, categoryServiceAdapter, orderServiceAdapter } from './backendAdapter';
 import { supabase, isSupabaseConfigured } from './supabase';
 export { isSupabaseConfigured };
 import { databaseService } from './databaseService';
 import type { Product, Category, Order, Customer, SalesSummary, OrderItem } from '../types';
 import { OrderStatus } from '../types';
+import { PRODUCTS } from '../constants';
 
 // --- SUPABASE BACKEND ONLY ---
 
@@ -58,10 +59,20 @@ export const getProducts = async (): Promise<Product[]> => {
     if (products && products.length > 0) {
       return products.map(mapProduct);
     }
-    return await productServiceAdapter.getAllProducts();
+    // Fallback to adapter/constants if database returns empty
+    const fallbackProducts = await productServiceAdapter.getAllProducts();
+    if (fallbackProducts && fallbackProducts.length > 0) {
+      return fallbackProducts;
+    }
+    // Final fallback to local constant
+    return PRODUCTS;
   } catch (error) {
     console.error('Error fetching products (fallback to adapter):', error);
-    return await productServiceAdapter.getAllProducts();
+    const fallbackProducts = await productServiceAdapter.getAllProducts();
+    if (fallbackProducts && fallbackProducts.length > 0) {
+      return fallbackProducts;
+    }
+    return PRODUCTS;
   }
 };
 
@@ -77,10 +88,23 @@ export const getCategories = async (): Promise<Category[]> => {
         imageUrl: c.image_url || c.imageUrl
       }));
     }
-    return await categoryServiceAdapter.getAllCategories();
+    // Fallback to adapter/constants if database returns empty
+    const fallbackCategories = await categoryServiceAdapter.getAllCategories();
+    if (fallbackCategories && fallbackCategories.length > 0) {
+      return fallbackCategories;
+    }
+    // Import and return local constants as final fallback
+    const { categories: localCategories } = await import('../constants');
+    return localCategories;
   } catch (error) {
     console.error('Error fetching categories (fallback to adapter):', error);
-    return await categoryServiceAdapter.getAllCategories();
+    const fallbackCategories = await categoryServiceAdapter.getAllCategories();
+    if (fallbackCategories && fallbackCategories.length > 0) {
+      return fallbackCategories;
+    }
+    // Import and return local constants as final fallback
+    const { categories: localCategories } = await import('../constants');
+    return localCategories;
   }
 };
 
@@ -108,12 +132,29 @@ export const getCustomers = async (): Promise<Customer[]> => {
 export const getOrders = async (customerId?: string): Promise<Order[]> => {
   try {
     const orders = await databaseService.getOrdersWithItems();
-    if (customerId) {
-      return orders.filter(o => o.customer_id === customerId).map(mapOrder);
+    if (orders && orders.length > 0) {
+      if (customerId) {
+        return orders.filter(o => o.customer_id === customerId).map(mapOrder);
+      }
+      return orders.map(mapOrder);
     }
-    return orders.map(mapOrder);
+    // Fallback to order service adapter if database returns empty
+    const fallbackOrders = await orderServiceAdapter.getCustomerOrders(customerId);
+    if (fallbackOrders && fallbackOrders.length > 0) {
+      return fallbackOrders.map(mapOrder);
+    }
+    return [];
   } catch (error) {
     console.error('Error fetching orders:', error);
+    // Try fallback service
+    try {
+      const fallbackOrders = await orderServiceAdapter.getCustomerOrders(customerId);
+      if (fallbackOrders && fallbackOrders.length > 0) {
+        return fallbackOrders.map(mapOrder);
+      }
+    } catch (fallbackError) {
+      console.error('Error fetching orders from fallback:', fallbackError);
+    }
     return [];
   }
 };

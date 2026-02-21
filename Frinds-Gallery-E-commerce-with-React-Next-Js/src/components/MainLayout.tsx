@@ -10,14 +10,33 @@ import { MobileBottomNav } from './MobileBottomNav';
 import BackToTop from './BackToTop';
 import { useCart } from '@/context/CartContext';
 import { useSiteContent } from '@/context/SiteContentContext';
-import { useAuth } from '@/hooks/useAuth'; // We'll need to create/update this
+import { useAuth } from '@/hooks/useAuth';
+import * as api from '@/services/api';
+import type { Category } from '@/types';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith('/admin');
   const { cart, wishlist } = useCart();
   const { content } = useSiteContent();
-  const { user, logout } = useAuth(); // Need to implement this
+  const { user, logout } = useAuth();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+
+  // Fetch categories for Header and Footer
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const cats = await api.getCategories();
+        setCategories(cats);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // Mocking navigate functions for compatibility
   const navigateTo = (page: string) => {
@@ -39,7 +58,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           wishlistItemCount={wishlist.length}
           currentUser={user}
           onLogout={logout}
-          categories={content.features ? [] : []} // Update this to use actual categories
+          categories={categories}
         />
       )}
 
@@ -51,7 +70,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         <Footer 
           navigateTo={navigateTo} 
           navigateToShop={navigateToShop} 
-          categories={[]} // Update this
+          categories={categories}
         />
       )}
 
