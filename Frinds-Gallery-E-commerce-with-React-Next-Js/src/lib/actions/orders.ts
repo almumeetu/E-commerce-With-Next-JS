@@ -1,4 +1,4 @@
-import { supabase } from '../../../services/supabase';
+import { supabase } from '../../services/supabase';
 
 export type PlaceOrderResult =
     | { success: true; orderId: any; message?: string }

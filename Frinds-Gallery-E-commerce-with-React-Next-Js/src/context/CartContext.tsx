@@ -5,13 +5,13 @@ import { Product, CartItem } from '@/types';
 
 interface CartContextType {
     cart: CartItem[];
-    wishlist: (string | number)[];
+    wishlist: string[];
     addToCart: (product: Product) => void;
-    updateQuantity: (productId: string | number, amount: number) => void;
-    setQuantity: (productId: string | number, quantity: number) => void;
-    removeFromCart: (productId: string | number) => void;
+    updateQuantity: (productId: string, amount: number) => void;
+    setQuantity: (productId: string, quantity: number) => void;
+    removeFromCart: (productId: string) => void;
     clearCart: () => void;
-    toggleWishlist: (productId: string | number) => void;
+    toggleWishlist: (productId: string) => void;
     cartCount: number;
     cartTotal: number;
     wishlistCount: number;
@@ -21,7 +21,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
     const [cart, setCart] = useState<CartItem[]>([]);
-    const [wishlist, setWishlist] = useState<(string | number)[]>([]);
+    const [wishlist, setWishlist] = useState<string[]>([]);
     const [isLoaded, setIsLoaded] = useState(false);
 
     // Load from local storage
@@ -65,7 +65,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         });
     };
 
-    const updateQuantity = (productId: string | number, amount: number) => {
+    const updateQuantity = (productId: string, amount: number) => {
         setCart((prevCart: CartItem[]) =>
             prevCart.map((item: CartItem) => {
                 if (item.id === productId) {
@@ -77,7 +77,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         );
     };
 
-    const setQuantity = (productId: string | number, quantity: number) => {
+    const setQuantity = (productId: string, quantity: number) => {
         if (quantity < 1) return;
         setCart((prevCart: CartItem[]) =>
             prevCart.map((item: CartItem) =>
@@ -86,7 +86,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         );
     };
 
-    const removeFromCart = (productId: string | number) => {
+    const removeFromCart = (productId: string) => {
         setCart((prevCart: CartItem[]) => prevCart.filter((item: CartItem) => item.id !== productId));
     };
 
@@ -94,10 +94,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCart([]);
     };
 
-    const toggleWishlist = (productId: string | number) => {
-        setWishlist((prev: (string | number)[]) => {
+    const toggleWishlist = (productId: string) => {
+        setWishlist((prev: string[]) => {
             if (prev.includes(productId)) {
-                return prev.filter((id: string | number) => id !== productId);
+                return prev.filter((id: string) => id !== productId);
             } else {
                 return [...prev, productId];
             }
